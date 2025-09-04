@@ -3,7 +3,7 @@ project:
   output-dir: _site
 
 website:
-  title: "ISSS626-GAA"
+  title: "ISSS626-GSA"
   navbar:
     left:
       - text: "Hands-on Exercise"
