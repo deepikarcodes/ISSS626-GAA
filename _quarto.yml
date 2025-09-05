@@ -7,8 +7,7 @@ website:
   navbar:
     left:
       - text: "Hands-on Exercise"
-        menu:mpsz = st_read(dsn = "chap01/data/geospatial", 
-                  layer = "MP14_SUBZONE_WEB_PL")
+        menu:
         - text: "Hands-on Exercise 1"
           href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex011.html"
         - text: "Ex 1.1 - Geospatial Data Wrangling"
@@ -28,7 +27,7 @@ website:
 
 format:
   html:
-    theme: morph
+    theme: minty
     css: styles.css
     toc: true
 
