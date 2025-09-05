@@ -1,28 +1,29 @@
 project:
-  type: website
-  output-dir: _site
 
+  type: website
+ 
 website:
-  title: "ISSS626-GAA"
+
+  title: ""
+
   navbar:
+
     left:
-      - text: "Hands-on Exercise"
-        menu:
-        - text: "Hands-on Exercise 1"
-          href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex011.html"
-        - text: "Ex 1.1 - Geospatial Data Wrangling"
-          href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex011.html"
-        - text: "Ex 1.2 - Choropleth Mapping"
-          href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex012.html"
-        - text: "Hands-on Exercise 2"
-          href: "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex021.html"
-        - text: "Ex 2.1 - 1st Order spatial point pattern analysis methods"
-          href: "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex022.html"
-        - text: "Ex 2.2 - 2nd Order spatial point pattern analysis methods"
-          href: "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex021.html"
+
+    - text: "Hands-on Exercises"
+
+      menu:
+
+        - text: "1a: Geospatial Data Wrangling with R"
+
+          href: "Hands-on Exercises/Hands-on Ex01/Hands-on Ex01a.html"
+
     right:
+
       - href: index.qmd
+
         text: Home
+
       - about.qmd
 
 format:

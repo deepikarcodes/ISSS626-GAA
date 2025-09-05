@@ -12,5 +12,33 @@
     "title": "About",
     "section": "",
     "text": "About this site\n\n1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "Hands-on Exercises/Hands-on Ex01/Hands-on Ex01a.html",
+    "href": "Hands-on Exercises/Hands-on Ex01/Hands-on Ex01a.html",
+    "title": "Hands-on 1",
+    "section": "",
+    "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org."
+  },
+  {
+    "objectID": "Hands-on Exercises/Hands-on Ex01/Hands-on Ex01a.html#quarto",
+    "href": "Hands-on Exercises/Hands-on Ex01/Hands-on Ex01a.html#quarto",
+    "title": "Hands-on 1",
+    "section": "",
+    "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org."
+  },
+  {
+    "objectID": "Hands-on Exercises/Hands-on Ex01/Hands-on Ex01a.html#running-code",
+    "href": "Hands-on Exercises/Hands-on Ex01/Hands-on Ex01a.html#running-code",
+    "title": "Hands-on 1",
+    "section": "Running Code",
+    "text": "Running Code\nWhen you click the Render button a document will be generated that includes both content and the output of embedded code. You can embed code like this:\n\n1 + 1\n\n[1] 2\n\n\nYou can add options to executable code like this\n\n\n[1] 4\n\n\nThe echo: false option disables the printing of code (only output is displayed)."
+  },
+  {
+    "objectID": "Hands-on Exercises/Hands-on Ex01/Hands-on Ex01a.html#abc",
+    "href": "Hands-on Exercises/Hands-on Ex01/Hands-on Ex01a.html#abc",
+    "title": "Hands-on 1",
+    "section": "",
+    "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org."
   }
 ]
