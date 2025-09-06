@@ -6,6 +6,16 @@ editor: visual
 
 # **1a  Geospatial Data Science with R**
 
+### Built By Deepika Raja
+
+```{r}
+
+```
+
+```{r}
+
+```
+
 ## **Getting Started**
 
 ## **1.1 Learning Outcome**
