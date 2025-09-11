@@ -1,5 +1,5 @@
 ---
-title: "Hands-on 1a"
+title: "Hands_on_1a"
 format: html
 editor: visual
 ---
@@ -7,14 +7,6 @@ editor: visual
 # **1a  Geospatial Data Science with R**
 
 ### Built By Deepika Raja
-
-```{r}
-
-```
-
-```{r}
-
-```
 
 ## **Getting Started**
 
