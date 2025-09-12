@@ -10,7 +10,7 @@ editor: visual
 
 ## **1. Getting Started**
 
-## **1.1 Learning Outcome**
+## **1.a. Learning Outcome**
 
 **Geospatial Data Science** is a process of [importing, wrangling, integrating, and processing]{.underline} geographically referenced data sets. In this hands-on exercise, you will learn how to perform geospatial data science tasks in R by using **sf** package.
 
@@ -28,27 +28,27 @@ Use the code chunk below to load the necessary R packages into R.
 pacman::p_load(sf, tidyverse)
 ```
 
-## **1.2 Importing Geospatial Data**
+## **1.b Importing Geospatial Data**
 
-### 1.2a **Listings.csv from Aspatial folder**:
+### 1.b.2. **Listings.csv from Aspatial folder**:
 
 ```{r}
 listings <- read_csv("Data/Aspatial/listings.csv")
 ```
 
-### 1.2b **MP14_Subzone shapefile from Geospatial folder**
+### 1.b.3. **MP14_Subzone shapefile from Geospatial folder**
 
 ```{r}
 mpsz <- st_read(dsn="data/geospatial",layer ="MP14_SUBZONE_WEB_PL")
 ```
 
-### 1.2c **Cyclingpath shapefile from Geospatial folder**
+### 1.b.4. **Cyclingpath shapefile from Geospatial folder**
 
 ```{r}
 cyclingpath <- st_read(dsn = "data/geospatial", layer = "CyclingPathGazette")
 ```
 
-### 1.2d **PreSchoolLocation kml from Geospatial folder**
+### 1.b.5. **PreSchoolLocation kml from Geospatial folder**
 
 ```{r}
 preschool <- st_read(dsn = "data/geospatial/PreSchoolsLocation.kml")
