@@ -27,7 +27,7 @@ biz_56111 <- acra_data %>%
   rename(date=registration_incorporation_date)%>%
   mutate(date=as.Date(date),
          YEAR=year(date),
-         MONTH_NUM = month(date)
+         MONTH_NUM = month(date),
          MONTH_ABBR = month(date,
                           label=TRUE,
                           abbr=TRUE))%>%
