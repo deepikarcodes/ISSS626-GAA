@@ -432,5 +432,12 @@
     "title": "Hands_on_3",
     "section": "",
     "text": "If the contours show high values for small values of uu and vv, it suggests clustering at short spatial and temporal distances, meaning events occur close to each other in both space and time.\nIf the contours are flat or show low values, it indicates a more random distribution or a lack of significant clustering at those distances.\n\nThe spatial and temporal extent of clustering can be understood by observing how rapidly the contours increase or decrease as we move along the axes. In the plot above, we can see clustering at specific distances by observing the spacing and values of the contour lines."
+  },
+  {
+    "objectID": "In_Class_Exercises/In_Class_Ex03/In_Class_Ex03b.html",
+    "href": "In_Class_Exercises/In_Class_Ex03/In_Class_Ex03b.html",
+    "title": "In_Class_Ex03b",
+    "section": "",
+    "text": "pacman:: p_load(tidyverse, sf, tmap, httr)\n\n\nfolder_path &lt;- \"data/aspatial/acra\"\nfile_list &lt;- list.files(path=folder_path,\n                        pattern=\"^ACRA*,\\\\.csv$\",full.names=TRUE)\n\nacra_data &lt;-file_list%&gt;%\n  map_dfr(read_csv)\n\n\nwrite_rds(acra_data,\"data/rds/acra_data.rds\")"
   }
 ]
