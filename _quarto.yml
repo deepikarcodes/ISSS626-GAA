@@ -1,0 +1,63 @@
+project:
+
+  type: website
+ 
+website:
+
+  title: ""
+
+  navbar:
+
+    left:
+
+    - text: "Hands_on_Exercises"
+
+      menu:
+
+        - text: "1a: Geospatial Data Wrangling with R"
+
+          href: "Hands_on_Exercises/Hands_on_Ex01/Hands_on_Ex01a.html"
+          
+        - text: "1b: Thematic Mapping and GeoVisualisation with R"
+          
+          href: "Hands_on_Exercises/Hands_on_Ex01/Hands_on_Ex01b.html"
+          
+        - text: "2a: First-order Spatial Point Patterns Analysis Methods"
+          
+          href: "Hands_on_Exercises/Hands_on_Ex02/Hands_on_Ex02a.html"
+          
+        - text: "2b: 2nd Order Spatial Point Patterns Analysis Methods"
+          
+          href: "Hands_on_Exercises/Hands_on_Ex02/Hands_on_Ex02b.html"
+          
+        - text: "3: Spatio-Temporal Point Patterns Analysis"
+          
+          href: "Hands_on_Exercises/Hands_on_Ex03/Hands_on_Ex03.html"
+          
+
+    - text: "In_Class_Exercises"
+
+      menu:
+
+        - text: "3a: Interactive K-function"
+
+          href: "In_Class_Exercises/In_Class_Ex03/In_Class_Ex03a.html"
+          
+        - text: "3b: Working with Open Government Data"
+
+          href: "In_Class_Exercises/In_Class_Ex03/In_Class_Ex03b.html"
+    right:
+
+      - href: index.qmd
+
+        text: Home
+
+      - about.qmd
+
+format:
+  html:
+    theme: minty
+    css: styles.css
+    toc: true
+
+editor: visual
