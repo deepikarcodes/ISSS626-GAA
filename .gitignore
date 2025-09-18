@@ -12,21 +12,9 @@
 
 # Quarto cache and outputs
 .quarto/
-*.html
-*.pdf
 
 # Data folders (raw data should not be pushed)
 data/
-In_Class_Exercises/**/data/
-Hands-on_Exercises/**/data/
-
-# Common large file types
-*.csv
-*.rds
-*.zip
-*.sav
-*.xlsx
-*.xls
 
 # Logs and temporary files
 *.log
