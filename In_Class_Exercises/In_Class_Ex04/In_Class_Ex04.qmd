@@ -1,5 +1,11 @@
 ---
-title: "In_Class_Ex04"
-format: html
+title: "In-class Exercise 4: Interactive K-function"
+author: "Deepika Raja"
+date: "September 20, 2025"
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
 ---
-

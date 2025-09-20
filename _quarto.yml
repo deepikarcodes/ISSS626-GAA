@@ -49,6 +49,12 @@ website:
         - text: "3b: Working with Open Government Data"
 
           href: "In_Class_Exercises/In_Class_Ex03/In_Class_Ex03b.html"
+          
+        - text: "4: Interactive K-function"
+
+          href: "In_Class_Exercises/In_Class_Ex03/In_Class_Ex03a.html"
+    
+    
     right:
 
       - href: index.qmd

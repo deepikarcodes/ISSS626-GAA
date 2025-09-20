@@ -595,3 +595,5 @@ Note: For more effective comparison, it is advicible to use the core tmap mappin
 ## **10. References**
 
 -   <https://cran.r-project.org/web/packages/spdep/vignettes/nb_sf.html>
+
+git add -A
