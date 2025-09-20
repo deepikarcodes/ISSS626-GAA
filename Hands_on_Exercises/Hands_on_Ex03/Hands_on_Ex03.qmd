@@ -10,10 +10,6 @@ execute:
   freeze: true
 ---
 
-# 3 **Spatio-Temporal Point Patterns Analysis**
-
-### Built By Deepika Raja
-
 ## **1. Getting Started**
 
 ### **1.a. Learning Outcome**

@@ -10,10 +10,6 @@ execute:
   freeze: true
 ---
 
-# **2a  First-order Spatial Point Patterns Analysis Methods**
-
-### Built By Deepika Raja
-
 ## **1. Getting Started**
 
 ## **1. Learning Outcome**

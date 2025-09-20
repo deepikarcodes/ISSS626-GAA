@@ -10,10 +10,6 @@ execute:
   freeze: true
 ---
 
-# **2b** 2nd Order Spatial Point Patterns Analysis Methods
-
-### Built By Deepika Raja
-
 ## **1. Getting Started**
 
 ## **1.a. Learning Outcome**
