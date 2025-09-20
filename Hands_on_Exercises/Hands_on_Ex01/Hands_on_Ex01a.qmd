@@ -10,10 +10,6 @@ execute:
   freeze: true
 ---
 
-# **1a  Geospatial Data Science with R**
-
-### Built By Deepika Raja
-
 ## **1. Getting Started**
 
 ## **1.a. Learning Outcome**
