@@ -53,7 +53,16 @@ website:
         - text: "4: Interactive K-function"
 
           href: "In_Class_Exercises/In_Class_Ex03/In_Class_Ex03a.html"
-    
+          
+          
+     - text: "Take_Home_Exercises"
+
+      menu:
+
+        - text: "1: Geospatial Analytics for Public Good"
+
+          href: "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html"
+          
     
     right:
 

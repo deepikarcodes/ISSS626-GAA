@@ -1,0 +1,15 @@
+---
+title: "Take-Home Exercise 1: Geospatial Analytics for Public Good"
+author: "Deepika Raja"
+date: "September 20, 2025"
+date-modified: "last-modified"
+format: html
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+
+
