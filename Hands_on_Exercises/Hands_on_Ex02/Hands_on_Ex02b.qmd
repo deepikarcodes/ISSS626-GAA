@@ -1,7 +1,13 @@
 ---
-title: "Hands_on_2b"
-format: html
-editor: visual
+title: "Hands on Exercise 2b- Second Order Spatial Point Patterns Analysis Methods"
+author: "Deepika Raja"
+date: "September 5, 2025"
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
 ---
 
 # **2b** 2nd Order Spatial Point Patterns Analysis Methods

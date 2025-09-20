@@ -1,7 +1,13 @@
 ---
-title: "Hands_on_3"
-format: html
-editor: visual
+title: "Hands on Exercise 3- Spatio-Temporal Point Patterns Analysis"
+author: "Deepika Raja"
+date: "September 12, 2025"
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
 ---
 
 # 3 **Spatio-Temporal Point Patterns Analysis**

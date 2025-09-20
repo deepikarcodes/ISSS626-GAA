@@ -1,7 +1,13 @@
 ---
-title: "Hands_on_1b"
-format: html
-editor: visual
+title: "Hands on Exercise 1b- Thematic Mapping and GeoVisualisation with R"
+author: "Deepika Raja"
+date: "August 29, 2025"
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
 ---
 
 # 1b Thematic Mapping and GeoVisualisation with R
