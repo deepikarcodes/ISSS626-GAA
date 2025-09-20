@@ -19,7 +19,7 @@ In this hands-on exercise, we will learn how to compute spatial weights using R.
 We will use following geospatial datasets in this exercise:
 
 | Dataset | Description | Format |
-|-------------------|----------------------------------|-------------------|
+|----|----|----|
 | *Hunan* | Hunan county boundary layer geospatial data | ESRI shapefile |
 | *Hunan_2012* | Contains selected Hunan’s local development indicators in 2012 | CSV file |
 
@@ -409,7 +409,7 @@ lag_gdppc <- qtm(hunan, "lag GDPPC")
 tmap_arrange(gdppc, lag_gdppc, asp=1, ncol=2)
 ```
 
-### **10.b. Spatial Lag as a Sum of Neighboring Values** 
+### **10.b. Spatial Lag as a Sum of Neighboring Values**
 
 Spatial lag can be computed as the **sum of neighboring values** by assigning **binary weights**.
 
