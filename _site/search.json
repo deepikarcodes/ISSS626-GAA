@@ -199,8 +199,8 @@
     "objectID": "Hands_on_Exercises/Hands_on_Ex01/Hands_on_Ex01b.html#a-learning-outcome",
     "href": "Hands_on_Exercises/Hands_on_Ex01/Hands_on_Ex01b.html#a-learning-outcome",
     "title": "Hands on Exercise 1b- Thematic Mapping and GeoVisualisation with R",
-    "section": "",
-    "text": "In general, thematic mapping involves the use of map symbols to visualize selected properties of geographic features that are not naturally visible, such as population, temperature, crime rate, and property prices, just to mention a few of them.\nGeovisualisation, on the other hand, is the process of using visual representations and cartographic techniques to explore, analyze, and communicate geospatial data. It combines elements of cartography, computer science, and information visualization to enhance spatial understanding and knowledge discovery."
+    "section": "1.a Learning Outcome",
+    "text": "1.a Learning Outcome\nIn general, thematic mapping involves the use of map symbols to visualize selected properties of geographic features that are not naturally visible, such as population, temperature, crime rate, and property prices, just to mention a few of them.\nGeovisualisation, on the other hand, is the process of using visual representations and cartographic techniques to explore, analyze, and communicate geospatial data. It combines elements of cartography, computer science, and information visualization to enhance spatial understanding and knowledge discovery."
   },
   {
     "objectID": "Hands_on_Exercises/Hands_on_Ex01/Hands_on_Ex01b.html#b.-install-and-launch-r-packages",
