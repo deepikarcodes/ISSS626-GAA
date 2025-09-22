@@ -1,12 +1,460 @@
 ---
 title: "Take-Home Exercise 1: Geospatial Analytics for Public Good"
 author: "Deepika Raja"
-date: "September 20, 2025"
+date: "September 15, 2025"
 date-modified: "last-modified"
-format: html
 execute: 
   eval: true
   echo: true
   warning: false
   freeze: true
+format: 
+  html:
+    toc: true
+    code-link: true
+number-sections: true
+number-depth: 4
+editor: visual
 ---
+
+# 1. Research Focus
+
+This study looks at where and how new businesses are emerging in Singapore. By applying **spatial point pattern analysis**, I will explore:
+
+-   how **densely** new businesses are distributed across the island,
+
+-   whether **clustering** occurs in certain regions or industries,
+
+-   how business locations relate to one another **spatially**, and
+
+-   how these patterns shift between **2024 and the first half of 2025**.
+
+Through this, the analysis highlights short-term trends in Singapore’s commercial landscape and uncovers the early signs of potential growth hubs.\
+
+# 2. Objectives
+
+This study aims to analyse the spatial and spatio-temporal dynamics of newly established businesses in Singapore during the first half of 2025. The key objectives are:
+
+1.  **Locate patterns of emergence** — Identify *where* and *when* new businesses are concentrated, highlighting clusters and spatial trends relevant to urban planning and economic development.
+
+2.  **Uncover interactions** — Examine how businesses relate beyond simple density, including clustering of similar industries, temporal shifts, and structural changes in commercial zones.
+
+3.  **Support decision-making** — Translate spatial insights into knowledge that can guide planning, resource allocation, and strategies for fostering sustainable business growth.
+
+# 3. Installing and Loading R Packages
+
+Before starting the analysis, it is important to ensure that the required R packages are available in the working environment. These packages provide the tools for handling geospatial data, performing spatial point pattern analysis, creating maps, and producing visual outputs.
+
+```{r}
+# Load all required packages in one step
+pacman::p_load(
+  sf,        # for vector-based spatial data
+  raster,    # for raster (grid) data
+  spatstat,  # for spatial point pattern analysis
+  sparr,     # for kernel density & risk mapping
+  tmap,      # for cartographic maps
+  tidyverse, # for data wrangling & visualization
+  terra,     # modern raster/vector support
+  stopp,     # for 2nd-order space-time SPPA
+  stpp,      # for space-time point processes
+  magick,    # for animations
+  httr,      # for API queries
+  ggthemes,  # for additional ggplot themes
+  plotly,    # for interactive charts
+  fs,         # for file management tasks
+  viridis,
+  stpp
+)
+```
+
+# 4. The Data
+
+For this exercise, the analysis uses **three primary datasets**, all publicly available from [data.gov.sg](http://data.gov.sg):
+
+1.  **Master Plan 2019 Subzone Boundary (No Sea) (KML)**
+
+```         
+-   Contains the polygon boundaries of Singapore’s subzones (excluding sea areas).
+
+-    Provides the spatial framework for mapping and analyzing business locations relative to urban subzones.
+```
+
+2.  **Corporate Entities Dataset (ACRA)**
+
+```         
+-   Contains corporate registration information for businesses in Singapore, including incorporation date and SSIC 2020 codes.
+
+-   For this exercise, we extracted **new business entities registered between 1 January 2024 and 30 June 2025**, and filtered them based on relevant SSIC codes to focus on selected business types.
+```
+
+These datasets together enable **spatial and spatio-temporal analysis** of new business clusters, trends, and interactions within Singapore’s urban environment.
+
+## 4.a. Selection of Business Sectors
+
+For this exercise, three business sectors were selected based on the **Singapore Standard Industrial Classification (SSIC) 2020**, considering their relevance to urban economic activity, potential clustering behavior, and data availability. The chosen sectors are:
+
+1.  **Food & Beverage Services (SSIC 56111)** – Represents cafes, restaurants, and other eateries. These businesses tend to cluster in commercial areas and provide insight into consumer behavior and urban vibrancy.
+
+2.  **Information Technology Services (SSIC 62011)** – Covers software development, IT consulting, and related services. This sector reflects knowledge-based economic activity and is often influenced by proximity to business hubs or tech parks.
+
+3.  **Retail Trade (SSIC 47111)** – Includes shops and retail outlets selling consumer goods. Retail locations show patterns related to population density, accessibility, and commercial zoning.
+
+By comparing these three sectors, we can explore differences in **spatial distribution**, **temporal trends**, and **emerging clusters** in Singapore, providing actionable insights for urban planning, business support, and infrastructure development.
+
+## 4.b. Reading and Combining ACRA CSV Files into R
+
+```{r}
+folder_path <- "data/aspatial/acra"
+file_list <- list.files(path = folder_path, 
+                        pattern = "^ACRA*.*\\.csv$", 
+                        full.names = TRUE)
+```
+
+## 4.b.1 Combining Multiple ACRA CSV Files into a Single Dataset
+
+```{r}
+acra_data <- file_list %>%
+  map_dfr(read_csv)
+```
+
+## 4.b.2. Saving the Combined Dataset for Future Use
+
+```{r}
+write_rds(acra_data,
+          "data/rds/acra_data.rds")
+```
+
+## 4.b.3. Filtering and Preparing Data for Selected Business Sectors
+
+```{r}
+# Define the SSIC codes for the three selected sectors
+selected_ssic <- c(56111, 62011, 47111)
+
+# Filter and prepare the data
+biz_selected <- acra_data %>%
+  select(1:24) %>%
+  filter(primary_ssic_code %in% selected_ssic) %>%
+  rename(date = registration_incorporation_date) %>%
+  mutate(
+    date = as.Date(date),
+    YEAR = year(date),
+    MONTH_NUM = month(date),
+    MONTH_ABBR = month(date, label = TRUE, abbr = TRUE),
+    postal_code = str_pad(postal_code, width = 6, side = "left", pad = "0")
+  ) %>%
+  filter(YEAR == 2025) %>%
+  mutate(
+    sector = case_when(
+      primary_ssic_code == 56111 ~ "Food & Beverage",
+      primary_ssic_code == 62011 ~ "Information Technology",
+      primary_ssic_code == 47111 ~ "Retail Trade",
+      TRUE ~ "Other"
+    )
+  )
+
+```
+
+## 4.b.4. Geocoding Business Locations Using Postal Codes for All Selected Sectors
+
+```{r}
+# Extract unique postal codes from all selected sectors
+postcodes <- unique(biz_selected$postal_code)
+
+# OneMap API endpoint
+url <- "https://onemap.gov.sg/api/common/elastic/search"
+
+# Initialize data frames to store results
+found <- data.frame()
+not_found <- data.frame(postcode = character())
+
+# Loop through each postal code and query OneMap
+for (pc in postcodes) {
+  query <- list(
+    searchVal = pc,
+    returnGeom = "Y",
+    getAddrDetails = "Y",
+    pageNum = "1"
+  )
+  
+  res <- GET(url, query = query)
+  json <- content(res)
+  
+  if (json$found != 0) {
+    df <- as.data.frame(json$results, stringsAsFactors = FALSE)
+    df$input_postcode <- pc
+    found <- bind_rows(found, df)
+  } else {
+    not_found <- bind_rows(not_found, data.frame(postcode = pc))
+  }
+}
+
+```
+
+## 4.b.5. Selecting Relevant Geocoding Results
+
+```{r}
+# Keep only the necessary columns from the geocoding results
+found <- found %>%
+  select(1:10)
+```
+
+## 4.b.6. Merging Business Data with Geocoded Locations
+
+```{r}
+# Merge the geocoded coordinates with the business dataset
+biz_selected <- biz_selected %>%
+  left_join(found, 
+            by = c('postal_code' = 'POSTAL'))
+
+```
+
+## 4.b.7. Saving the Processed Dataset
+
+```{r}
+# Save the processed dataset for future use
+write_rds(biz_selected, "data/rds/biz_selected.rds")
+```
+
+## 4.b.8. Converting the Dataset to a Spatial Object
+
+```{r}
+# Remove rows with missing coordinates before creating the spatial object
+biz_selected_clean <- biz_selected %>%
+  filter(!is.na(X) & !is.na(Y))
+
+# Convert the cleaned dataset into an sf object
+biz_selected_sf <- st_as_sf(biz_selected_clean,
+                            coords = c("X","Y"),
+                            crs = 3414)
+```
+
+# 5. Exploratory Analysis and Visualization of New Business Registrations
+
+## 5.a. Monthly Distribution of New Business Registrations
+
+```{r}
+# Plot monthly counts of new businesses for all selected sectors
+ggplot(data = biz_selected,
+       aes(x = MONTH_ABBR, fill = as.factor(primary_ssic_code))) +
+  geom_bar(position = "dodge") +
+  labs(title = "Monthly Distribution of New Business Registrations (2025)",
+       x = "Month",
+       y = "Number of Registrations",
+       fill = "SSIC Code") +
+  theme_minimal()
+
+```
+
+### Explanation:
+
+-   This bar chart shows **how new business registrations vary month by month** for the selected sectors in 2025.
+
+-   `fill = as.factor(primary_ssic_code)` differentiates the sectors by color.
+
+-   `position = "dodge"` places bars side by side for easier comparison across sectors.
+
+-   This visualization helps identify **seasonal trends**, peak registration months, and **differences in sector growth** over the first half of the year.
+
+## 5.b. Mapping New Business Locations
+
+```{r}
+tmap_mode('view')
+
+tm_shape(biz_selected_sf) +
+  tm_dots(col = "primary_ssic_code",
+          palette = "Set1",
+          size = 0.1,
+          title = "SSIC Code",
+          popup.vars = c("entity_name", "postal_code", "date")) +
+  tm_layout(title = "Spatial Distribution of New Business Registrations (2025)")
+```
+
+## 5.c. Exploratory Analysis for All Three Selected Sectors
+
+**Purpose:**\
+After geocoding and preparing the data, the next step is to explore the distribution of new business registrations for all three selected sectors (SSIC 56111, 56102, 56301). This allows us to understand **temporal trends** (when businesses were registered) and **spatial patterns** (where businesses are concentrated). Comparing sectors can reveal which types of businesses are growing faster and which areas of Singapore attract more of certain business types.
+
+**Analysis Goals:**
+
+1.  Show monthly registration trends for each sector in early 2025.
+
+2.  Map the spatial locations of all new businesses with different colors or symbols to distinguish sectors.
+
+3.  Prepare the dataset so that further **spatio-temporal analysis** (KDE, second-order analysis) can be applied efficiently.
+
+### 5.c.1. Combining the Three Sectors
+
+```{r}
+# Filter and combine the three sectors
+selected_ssic <- c(56111, 56102, 56301)
+
+biz_all <- acra_data %>%
+  select(1:24) %>%
+  filter(primary_ssic_code %in% selected_ssic) %>%
+  rename(date = registration_incorporation_date) %>%
+  mutate(date = as.Date(date),
+         YEAR = year(date),
+         MONTH_NUM = month(date),
+         MONTH_ABBR = month(date, label = TRUE, abbr = TRUE),
+         postal_code = str_pad(postal_code, width = 6, side = "left", pad = "0"),
+         sector = case_when(
+           primary_ssic_code == 56111 ~ "Cafes/Restaurants",
+           primary_ssic_code == 56102 ~ "Food Catering Services",
+           primary_ssic_code == 56301 ~ "Bars/Pubs"
+         )) %>%
+  filter(YEAR == 2025)
+
+```
+
+**Explanation:**\
+
+We first select the three sectors of interest and create a new column `sector` with descriptive labels. This makes later analysis and visualization clearer. We also ensure postal codes are padded for geocoding and restrict the data to the first half of 2025.
+
+### 5.c.2. Geocoding Postal Codes
+
+```{r}
+# Extract unique postal codes
+postcodes <- unique(biz_all$postal_code)
+
+# Initialize dataframes
+found <- data.frame()
+not_found <- data.frame(postcode = character())
+
+# Loop through postal codes to query OneMap API
+for (pc in postcodes) {
+  query <- list(
+    searchVal = pc,
+    returnGeom = "Y",
+    getAddrDetails = "Y",
+    pageNum = "1"
+  )
+  
+  res <- GET("https://onemap.gov.sg/api/common/elastic/search", query = query)
+  json <- content(res)
+  
+  if (json$found != 0) {
+    df <- as.data.frame(json$results, stringsAsFactors = FALSE)
+    df$input_postcode <- pc
+    found <- bind_rows(found, df)
+  } else {
+    not_found <- bind_rows(not_found, data.frame(postcode = pc))
+  }
+}
+
+# Keep relevant columns
+found <- found %>% select(1:10)
+
+# Merge geocoded results with business dataset
+biz_all <- biz_all %>%
+  left_join(found, by = c('postal_code' = 'POSTAL'))
+
+# Convert to spatial object
+biz_all_sf <- st_as_sf(biz_all, coords = c("X","Y"), crs=3414)
+
+```
+
+**Explanation:**\
+
+This step ensures that each business has spatial coordinates for mapping. The OneMap API is used to geocode postal codes, and the resulting coordinates are merged back into the business dataset. Converting it to an `sf` object allows the use of geospatial functions in `tmap` and other R spatial packages.
+
+### 5.c.3. Visualizing Monthly Trends
+
+```{r}
+# Plot monthly registration counts by sector
+ggplot(biz_all, aes(x = MONTH_ABBR, fill = sector)) +
+  geom_bar(position = "dodge") +
+  labs(title = "Monthly New Business Registrations (Jan–Jun 2025)",
+       x = "Month",
+       y = "Number of Registrations",
+       fill = "Sector") +
+  theme_minimal()
+
+```
+
+**Explanation:**\
+A bar plot showing monthly registrations for each sector. Using `position = "dodge"` allows direct comparison of sectors within the same month.
+
+### 5.c.4. Mapping Business Locations by Sector
+
+```{r}
+# Interactive map of new business locations by sector
+tmap_mode('view')
+tm_shape(biz_all_sf) +
+  tm_dots(col = "sector",
+          palette = c("red", "blue", "green"),
+          size = 0.1,
+          popup.vars = c("entity_name", "sector", "MONTH_ABBR"))
+
+```
+
+**Explanation:**\
+
+An interactive map showing the spatial distribution of the three sectors. Different colors distinguish the sectors, and popups display business name, sector, and registration month. This provides a clear view of clustering and sector-specific patterns across Singapore.
+
+## 6. Spatial and Spatio-Temporal Analysis
+
+### 6.a. Why KDE and Spatio-Temporal Analysis?
+
+1.  **Purpose:**\
+    While the EDA gives a basic sense of “where” and “when” businesses are located, **KDE** helps us **quantify density patterns** and identify **hotspots** of business activity.
+
+2.  **First-order spatial patterns:**\
+    KDE estimates the intensity of points across a continuous surface. This shows areas with unusually high concentrations of businesses.
+
+3.  **Spatio-temporal patterns:**\
+    Incorporating time allows us to see **how hotspots evolve** across months. This helps answer:
+
+    -   Are some areas consistently popular for new businesses?
+
+    -   Are certain sectors growing faster in particular locations?
+
+4.  **Policy Implication:**\
+    Planners can use these patterns to improve land use planning, allocate resources efficiently, and support targeted economic initiatives.
+
+### 6.b. Spatial and Spatio-Temporal KDE for Selected Sectors
+
+```{r}
+library(spatstat)
+library(sparr)
+
+# Define Singapore bounding box (in projected CRS)
+bbox <- st_bbox(biz_selected_sf)
+window <- owin(xrange = c(bbox["xmin"], bbox["xmax"]),
+               yrange = c(bbox["ymin"], bbox["ymax"]))
+
+# KDE for each sector
+kde_results <- list()
+for(sec in unique(biz_selected_sf$sector)){
+  sector_sf <- biz_selected_sf %>% filter(sector == sec)
+  
+  # Convert to ppp object
+  coords <- st_coordinates(sector_sf)
+  ppp_obj <- ppp(x = coords[,1], y = coords[,2], window = window)
+  
+  # KDE (adjust sigma as needed)
+  kde_res <- density(ppp_obj, sigma = 200)  # example bandwidth in meters
+  kde_results[[sec]] <- kde_res
+}
+
+# Plot KDEs side by side
+par(mfrow = c(1, length(kde_results)))
+for(sec in names(kde_results)){
+  plot(kde_results[[sec]], main = paste("KDE -", sec))
+}
+
+
+```
+
+## 6.c. Spatio-Temporal Analysis of New Business Registrations
+
+To understand how new business registrations evolve **both in space and time**, we perform **spatio-temporal analysis**. This helps identify:
+
+-   Hotspots that emerge over time
+
+-   Trends in business cluster formation
+
+-   Temporal patterns across different sectors
+
+Here, we use **monthly registration dates** as the time dimension and **geocoded coordinates** as the spatial dimension.
+
+We perform the analysis for all three sectors: **Food & Beverage, IT, and Retail Trade**.
