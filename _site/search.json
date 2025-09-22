@@ -509,5 +509,117 @@
     "title": "In-class Exercise 4: Interactive K-function",
     "section": "11.a. Visualizing Local Correlation",
     "text": "11.a. Visualizing Local Correlation\n\nLocal Correlation Coefficient\n\n\ntm_shape(hunan_Corr) +\n  tm_polygons(fill = \"gwCorr\",\n              fill.scale = tm_scale_intervals(\n                style = \"quantile\",\n                n = 5,\n                values = \"brewer.blues\"),\n              fill.legend = tm_legend(\n                title = \"local Correlation Coefficient\")) +\n  tm_borders(fill_alpha = 0.5) +\n  tm_title(\"Local Correlation Coefficient\", \n  size = 2.0) +\n  tm_layout(frame = TRUE)\n\n\n\n\n\n\n\n\n&lt;!–# \nNote\nInterpretation\n\nThe strongest correlations are found in the eastern and northern parts of the province, indicated by the darker shades.\nThe weaker correlations are located in the central and western areas, where the lighter colors predominate.\n\n–&gt;\n\nLocal Spearman Coefficient\n\nNote that we will observe similar trend using Local Spearman Coefficient. See notes below.\n\ntm_shape(hunan_Corr) +\n  tm_polygons(fill = \"gwSpearman\",\n              fill.scale = tm_scale_intervals(\n                style = \"quantile\",\n                n = 5,\n                values = \"brewer.blues\"),\n              fill.legend = tm_legend(\n                title = \"local Spearman Rho\")) +\n  tm_borders(fill_alpha = 0.5) +\n  tm_title(\"Local Spearman Rho\", \n  size = 2.0) +\n  tm_layout(frame = TRUE)\n\n\n\n\n\n\n\n\n&lt;!–# \nTip\nNotes on local correlation coefficient and the local Spearman coefficient:\n\nLocal Correlation Coefficient (Pearson)\n\n\nType: Parametric\n\nThe local correlation coefficient, often represented by Pearson’s correlation coefficient, assumes that the data follows a normal distribution.\n\nNature: Continuous\n\nIt measures the linear relationship between two continuous variables.\n\nType of Measure: Not Ranked\n\nThe Pearson correlation is sensitive to the actual values of the data points, not their ranks. It considers both the magnitude and direction of the linear relationship.\n\n\n\nLocal Spearman Coefficient\n\n\nType: Non-Parametric\n\nThe local Spearman coefficient is a rank-based measure and does not assume any specific distribution for the data. It is robust to non-normality.\n\nNature: Continuous (based on ranks)\n\nAlthough it works with ranks, the coefficient itself can take any continuous value between -1 and 1, like Pearson’s.\n\nType of Measure: Ranked\n\nThe Spearman correlation is based on the ranks of the data rather than their actual values. It measures the strength and direction of a monotonic relationship between two variables.\n\n\n–&gt;"
+  },
+  {
+    "objectID": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html",
+    "href": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html",
+    "title": "Take-Home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "",
+    "text": "This study looks at where and how new businesses are emerging in Singapore. By applying spatial point pattern analysis, I will explore:\n\nhow densely new businesses are distributed across the island,\nwhether clustering occurs in certain regions or industries,\nhow business locations relate to one another spatially, and\nhow these patterns shift between 2024 and the first half of 2025.\n\nThrough this, the analysis highlights short-term trends in Singapore’s commercial landscape and uncovers the early signs of potential growth hubs."
+  },
+  {
+    "objectID": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#a.-selection-of-business-sectors",
+    "href": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#a.-selection-of-business-sectors",
+    "title": "Take-Home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "\n4.1 4.a. Selection of Business Sectors",
+    "text": "4.1 4.a. Selection of Business Sectors\nFor this exercise, three business sectors were selected based on the Singapore Standard Industrial Classification (SSIC) 2020, considering their relevance to urban economic activity, potential clustering behavior, and data availability. The chosen sectors are:\n\nFood & Beverage Services (SSIC 56111) – Represents cafes, restaurants, and other eateries. These businesses tend to cluster in commercial areas and provide insight into consumer behavior and urban vibrancy.\nInformation Technology Services (SSIC 62011) – Covers software development, IT consulting, and related services. This sector reflects knowledge-based economic activity and is often influenced by proximity to business hubs or tech parks.\nRetail Trade (SSIC 47111) – Includes shops and retail outlets selling consumer goods. Retail locations show patterns related to population density, accessibility, and commercial zoning.\n\nBy comparing these three sectors, we can explore differences in spatial distribution, temporal trends, and emerging clusters in Singapore, providing actionable insights for urban planning, business support, and infrastructure development."
+  },
+  {
+    "objectID": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#b.-reading-and-combining-acra-csv-files-into-r",
+    "href": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#b.-reading-and-combining-acra-csv-files-into-r",
+    "title": "Take-Home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "\n4.2 4.b. Reading and Combining ACRA CSV Files into R",
+    "text": "4.2 4.b. Reading and Combining ACRA CSV Files into R\n\nfolder_path &lt;- \"data/aspatial/acra\"\nfile_list &lt;- list.files(path = folder_path, \n                        pattern = \"^ACRA*.*\\\\.csv$\", \n                        full.names = TRUE)"
+  },
+  {
+    "objectID": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#b.1-combining-multiple-acra-csv-files-into-a-single-dataset",
+    "href": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#b.1-combining-multiple-acra-csv-files-into-a-single-dataset",
+    "title": "Take-Home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "\n4.3 4.b.1 Combining Multiple ACRA CSV Files into a Single Dataset",
+    "text": "4.3 4.b.1 Combining Multiple ACRA CSV Files into a Single Dataset\n\nacra_data &lt;- file_list %&gt;%\n  map_dfr(read_csv)"
+  },
+  {
+    "objectID": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#b.2.-saving-the-combined-dataset-for-future-use",
+    "href": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#b.2.-saving-the-combined-dataset-for-future-use",
+    "title": "Take-Home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "\n4.4 4.b.2. Saving the Combined Dataset for Future Use",
+    "text": "4.4 4.b.2. Saving the Combined Dataset for Future Use\n\nwrite_rds(acra_data,\n          \"data/rds/acra_data.rds\")"
+  },
+  {
+    "objectID": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#b.3.-filtering-and-preparing-data-for-selected-business-sectors",
+    "href": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#b.3.-filtering-and-preparing-data-for-selected-business-sectors",
+    "title": "Take-Home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "\n4.5 4.b.3. Filtering and Preparing Data for Selected Business Sectors",
+    "text": "4.5 4.b.3. Filtering and Preparing Data for Selected Business Sectors\n\n# Define the SSIC codes for the three selected sectors\nselected_ssic &lt;- c(56111, 62011, 47111)\n\n# Filter and prepare the data\nbiz_selected &lt;- acra_data %&gt;%\n  select(1:24) %&gt;%\n  filter(primary_ssic_code %in% selected_ssic) %&gt;%\n  rename(date = registration_incorporation_date) %&gt;%\n  mutate(\n    date = as.Date(date),\n    YEAR = year(date),\n    MONTH_NUM = month(date),\n    MONTH_ABBR = month(date, label = TRUE, abbr = TRUE),\n    postal_code = str_pad(postal_code, width = 6, side = \"left\", pad = \"0\")\n  ) %&gt;%\n  filter(YEAR == 2025) %&gt;%\n  mutate(\n    sector = case_when(\n      primary_ssic_code == 56111 ~ \"Food & Beverage\",\n      primary_ssic_code == 62011 ~ \"Information Technology\",\n      primary_ssic_code == 47111 ~ \"Retail Trade\",\n      TRUE ~ \"Other\"\n    )\n  )"
+  },
+  {
+    "objectID": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#b.4.-geocoding-business-locations-using-postal-codes-for-all-selected-sectors",
+    "href": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#b.4.-geocoding-business-locations-using-postal-codes-for-all-selected-sectors",
+    "title": "Take-Home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "\n4.6 4.b.4. Geocoding Business Locations Using Postal Codes for All Selected Sectors",
+    "text": "4.6 4.b.4. Geocoding Business Locations Using Postal Codes for All Selected Sectors\n\n# Extract unique postal codes from all selected sectors\npostcodes &lt;- unique(biz_selected$postal_code)\n\n# OneMap API endpoint\nurl &lt;- \"https://onemap.gov.sg/api/common/elastic/search\"\n\n# Initialize data frames to store results\nfound &lt;- data.frame()\nnot_found &lt;- data.frame(postcode = character())\n\n# Loop through each postal code and query OneMap\nfor (pc in postcodes) {\n  query &lt;- list(\n    searchVal = pc,\n    returnGeom = \"Y\",\n    getAddrDetails = \"Y\",\n    pageNum = \"1\"\n  )\n  \n  res &lt;- GET(url, query = query)\n  json &lt;- content(res)\n  \n  if (json$found != 0) {\n    df &lt;- as.data.frame(json$results, stringsAsFactors = FALSE)\n    df$input_postcode &lt;- pc\n    found &lt;- bind_rows(found, df)\n  } else {\n    not_found &lt;- bind_rows(not_found, data.frame(postcode = pc))\n  }\n}"
+  },
+  {
+    "objectID": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#b.5.-selecting-relevant-geocoding-results",
+    "href": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#b.5.-selecting-relevant-geocoding-results",
+    "title": "Take-Home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "\n4.7 4.b.5. Selecting Relevant Geocoding Results",
+    "text": "4.7 4.b.5. Selecting Relevant Geocoding Results\n\n# Keep only the necessary columns from the geocoding results\nfound &lt;- found %&gt;%\n  select(1:10)"
+  },
+  {
+    "objectID": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#b.6.-merging-business-data-with-geocoded-locations",
+    "href": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#b.6.-merging-business-data-with-geocoded-locations",
+    "title": "Take-Home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "\n4.8 4.b.6. Merging Business Data with Geocoded Locations",
+    "text": "4.8 4.b.6. Merging Business Data with Geocoded Locations\n\n# Merge the geocoded coordinates with the business dataset\nbiz_selected &lt;- biz_selected %&gt;%\n  left_join(found, \n            by = c('postal_code' = 'POSTAL'))"
+  },
+  {
+    "objectID": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#b.7.-saving-the-processed-dataset",
+    "href": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#b.7.-saving-the-processed-dataset",
+    "title": "Take-Home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "\n4.9 4.b.7. Saving the Processed Dataset",
+    "text": "4.9 4.b.7. Saving the Processed Dataset\n\n# Save the processed dataset for future use\nwrite_rds(biz_selected, \"data/rds/biz_selected.rds\")"
+  },
+  {
+    "objectID": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#b.8.-converting-the-dataset-to-a-spatial-object",
+    "href": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#b.8.-converting-the-dataset-to-a-spatial-object",
+    "title": "Take-Home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "\n4.10 4.b.8. Converting the Dataset to a Spatial Object",
+    "text": "4.10 4.b.8. Converting the Dataset to a Spatial Object\n\n# Remove rows with missing coordinates before creating the spatial object\nbiz_selected_clean &lt;- biz_selected %&gt;%\n  filter(!is.na(X) & !is.na(Y))\n\n# Convert the cleaned dataset into an sf object\nbiz_selected_sf &lt;- st_as_sf(biz_selected_clean,\n                            coords = c(\"X\",\"Y\"),\n                            crs = 3414)"
+  },
+  {
+    "objectID": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#a.-monthly-distribution-of-new-business-registrations",
+    "href": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#a.-monthly-distribution-of-new-business-registrations",
+    "title": "Take-Home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "\n5.1 5.a. Monthly Distribution of New Business Registrations",
+    "text": "5.1 5.a. Monthly Distribution of New Business Registrations\n\n# Plot monthly counts of new businesses for all selected sectors\nggplot(data = biz_selected,\n       aes(x = MONTH_ABBR, fill = as.factor(primary_ssic_code))) +\n  geom_bar(position = \"dodge\") +\n  labs(title = \"Monthly Distribution of New Business Registrations (2025)\",\n       x = \"Month\",\n       y = \"Number of Registrations\",\n       fill = \"SSIC Code\") +\n  theme_minimal()\n\n\n\n\n\n\n\n\n5.1.1 Explanation:\n\nThis bar chart shows how new business registrations vary month by month for the selected sectors in 2025.\nfill = as.factor(primary_ssic_code) differentiates the sectors by color.\nposition = \"dodge\" places bars side by side for easier comparison across sectors.\nThis visualization helps identify seasonal trends, peak registration months, and differences in sector growth over the first half of the year."
+  },
+  {
+    "objectID": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#b.-mapping-new-business-locations",
+    "href": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#b.-mapping-new-business-locations",
+    "title": "Take-Home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "\n5.2 5.b. Mapping New Business Locations",
+    "text": "5.2 5.b. Mapping New Business Locations\n\ntmap_mode('view')\n\ntm_shape(biz_selected_sf) +\n  tm_dots(col = \"primary_ssic_code\",\n          palette = \"Set1\",\n          size = 0.1,\n          title = \"SSIC Code\",\n          popup.vars = c(\"entity_name\", \"postal_code\", \"date\")) +\n  tm_layout(title = \"Spatial Distribution of New Business Registrations (2025)\")"
+  },
+  {
+    "objectID": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#c.-exploratory-analysis-for-all-three-selected-sectors",
+    "href": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#c.-exploratory-analysis-for-all-three-selected-sectors",
+    "title": "Take-Home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "\n5.3 5.c. Exploratory Analysis for All Three Selected Sectors",
+    "text": "5.3 5.c. Exploratory Analysis for All Three Selected Sectors\nPurpose:\nAfter geocoding and preparing the data, the next step is to explore the distribution of new business registrations for all three selected sectors (SSIC 56111, 56102, 56301). This allows us to understand temporal trends (when businesses were registered) and spatial patterns (where businesses are concentrated). Comparing sectors can reveal which types of businesses are growing faster and which areas of Singapore attract more of certain business types.\nAnalysis Goals:\n\nShow monthly registration trends for each sector in early 2025.\nMap the spatial locations of all new businesses with different colors or symbols to distinguish sectors.\nPrepare the dataset so that further spatio-temporal analysis (KDE, second-order analysis) can be applied efficiently.\n\n\n5.3.1 5.c.1. Combining the Three Sectors\n\n# Filter and combine the three sectors\nselected_ssic &lt;- c(56111, 56102, 56301)\n\nbiz_all &lt;- acra_data %&gt;%\n  select(1:24) %&gt;%\n  filter(primary_ssic_code %in% selected_ssic) %&gt;%\n  rename(date = registration_incorporation_date) %&gt;%\n  mutate(date = as.Date(date),\n         YEAR = year(date),\n         MONTH_NUM = month(date),\n         MONTH_ABBR = month(date, label = TRUE, abbr = TRUE),\n         postal_code = str_pad(postal_code, width = 6, side = \"left\", pad = \"0\"),\n         sector = case_when(\n           primary_ssic_code == 56111 ~ \"Cafes/Restaurants\",\n           primary_ssic_code == 56102 ~ \"Food Catering Services\",\n           primary_ssic_code == 56301 ~ \"Bars/Pubs\"\n         )) %&gt;%\n  filter(YEAR == 2025)\n\nExplanation:\nWe first select the three sectors of interest and create a new column sector with descriptive labels. This makes later analysis and visualization clearer. We also ensure postal codes are padded for geocoding and restrict the data to the first half of 2025.\n\n5.3.2 5.c.2. Geocoding Postal Codes\n\n# Extract unique postal codes\npostcodes &lt;- unique(biz_all$postal_code)\n\n# Initialize dataframes\nfound &lt;- data.frame()\nnot_found &lt;- data.frame(postcode = character())\n\n# Loop through postal codes to query OneMap API\nfor (pc in postcodes) {\n  query &lt;- list(\n    searchVal = pc,\n    returnGeom = \"Y\",\n    getAddrDetails = \"Y\",\n    pageNum = \"1\"\n  )\n  \n  res &lt;- GET(\"https://onemap.gov.sg/api/common/elastic/search\", query = query)\n  json &lt;- content(res)\n  \n  if (json$found != 0) {\n    df &lt;- as.data.frame(json$results, stringsAsFactors = FALSE)\n    df$input_postcode &lt;- pc\n    found &lt;- bind_rows(found, df)\n  } else {\n    not_found &lt;- bind_rows(not_found, data.frame(postcode = pc))\n  }\n}\n\n# Keep relevant columns\nfound &lt;- found %&gt;% select(1:10)\n\n# Merge geocoded results with business dataset\nbiz_all &lt;- biz_all %&gt;%\n  left_join(found, by = c('postal_code' = 'POSTAL'))\n\n# Convert to spatial object\nbiz_all_sf &lt;- st_as_sf(biz_all, coords = c(\"X\",\"Y\"), crs=3414)\n\nExplanation:\nThis step ensures that each business has spatial coordinates for mapping. The OneMap API is used to geocode postal codes, and the resulting coordinates are merged back into the business dataset. Converting it to an sf object allows the use of geospatial functions in tmap and other R spatial packages.\n\n5.3.3 5.c.3. Visualizing Monthly Trends\n\n# Plot monthly registration counts by sector\nggplot(biz_all, aes(x = MONTH_ABBR, fill = sector)) +\n  geom_bar(position = \"dodge\") +\n  labs(title = \"Monthly New Business Registrations (Jan–Jun 2025)\",\n       x = \"Month\",\n       y = \"Number of Registrations\",\n       fill = \"Sector\") +\n  theme_minimal()\n\n\n\n\n\n\n\nExplanation:\nA bar plot showing monthly registrations for each sector. Using position = \"dodge\" allows direct comparison of sectors within the same month.\n\n5.3.4 5.c.4. Mapping Business Locations by Sector\n\n# Interactive map of new business locations by sector\ntmap_mode('view')\ntm_shape(biz_all_sf) +\n  tm_dots(col = \"sector\",\n          palette = c(\"red\", \"blue\", \"green\"),\n          size = 0.1,\n          popup.vars = c(\"entity_name\", \"sector\", \"MONTH_ABBR\"))\n\n\n\n\n\n\nExplanation:\nAn interactive map showing the spatial distribution of the three sectors. Different colors distinguish the sectors, and popups display business name, sector, and registration month. This provides a clear view of clustering and sector-specific patterns across Singapore."
+  },
+  {
+    "objectID": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#spatial-and-spatio-temporal-analysis",
+    "href": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#spatial-and-spatio-temporal-analysis",
+    "title": "Take-Home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "\n5.4 6. Spatial and Spatio-Temporal Analysis",
+    "text": "5.4 6. Spatial and Spatio-Temporal Analysis\n\n5.4.1 6.a. Why KDE and Spatio-Temporal Analysis?\n\nPurpose:\nWhile the EDA gives a basic sense of “where” and “when” businesses are located, KDE helps us quantify density patterns and identify hotspots of business activity.\nFirst-order spatial patterns:\nKDE estimates the intensity of points across a continuous surface. This shows areas with unusually high concentrations of businesses.\n\nSpatio-temporal patterns:\nIncorporating time allows us to see how hotspots evolve across months. This helps answer:\n\nAre some areas consistently popular for new businesses?\nAre certain sectors growing faster in particular locations?\n\n\nPolicy Implication:\nPlanners can use these patterns to improve land use planning, allocate resources efficiently, and support targeted economic initiatives.\n\n5.4.2 6.b. Spatial and Spatio-Temporal KDE for Selected Sectors\n\nlibrary(spatstat)\nlibrary(sparr)\n\n# Define Singapore bounding box (in projected CRS)\nbbox &lt;- st_bbox(biz_selected_sf)\nwindow &lt;- owin(xrange = c(bbox[\"xmin\"], bbox[\"xmax\"]),\n               yrange = c(bbox[\"ymin\"], bbox[\"ymax\"]))\n\n# KDE for each sector\nkde_results &lt;- list()\nfor(sec in unique(biz_selected_sf$sector)){\n  sector_sf &lt;- biz_selected_sf %&gt;% filter(sector == sec)\n  \n  # Convert to ppp object\n  coords &lt;- st_coordinates(sector_sf)\n  ppp_obj &lt;- ppp(x = coords[,1], y = coords[,2], window = window)\n  \n  # KDE (adjust sigma as needed)\n  kde_res &lt;- density(ppp_obj, sigma = 200)  # example bandwidth in meters\n  kde_results[[sec]] &lt;- kde_res\n}\n\n# Plot KDEs side by side\npar(mfrow = c(1, length(kde_results)))\nfor(sec in names(kde_results)){\n  plot(kde_results[[sec]], main = paste(\"KDE -\", sec))\n}"
+  },
+  {
+    "objectID": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#c.-spatio-temporal-analysis-of-new-business-registrations",
+    "href": "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html#c.-spatio-temporal-analysis-of-new-business-registrations",
+    "title": "Take-Home Exercise 1: Geospatial Analytics for Public Good",
+    "section": "\n5.5 6.c. Spatio-Temporal Analysis of New Business Registrations",
+    "text": "5.5 6.c. Spatio-Temporal Analysis of New Business Registrations\nTo understand how new business registrations evolve both in space and time, we perform spatio-temporal analysis. This helps identify:\n\nHotspots that emerge over time\nTrends in business cluster formation\nTemporal patterns across different sectors\n\nHere, we use monthly registration dates as the time dimension and geocoded coordinates as the spatial dimension.\nWe perform the analysis for all three sectors: Food & Beverage, IT, and Retail Trade."
   }
 ]
