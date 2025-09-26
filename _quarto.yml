@@ -37,6 +37,11 @@ website:
         - text: "4: Spatial Weights and Applications"
           
           href: "Hands_on_Exercises/Hands_on_Ex04/Hands_on_Ex04.html"
+        
+        - text: "5a: Global Measures of Spatial Autocorrelation"
+          
+          href: "Hands_on_Exercises/Hands_on_Ex05/Hands_on_Ex05a.html"
+                    
 
     - text: "In_Class_Exercises"
 

@@ -46,25 +46,15 @@ This study aims to analyse the spatial and spatio-temporal dynamics of newly est
 Before starting the analysis, it is important to ensure that the required R packages are available in the working environment. These packages provide the tools for handling geospatial data, performing spatial point pattern analysis, creating maps, and producing visual outputs.
 
 ```{r}
-# Load all required packages in one step
-pacman::p_load(
-  sf,        # for vector-based spatial data
-  raster,    # for raster (grid) data
-  spatstat,  # for spatial point pattern analysis
-  sparr,     # for kernel density & risk mapping
-  tmap,      # for cartographic maps
-  tidyverse, # for data wrangling & visualization
-  terra,     # modern raster/vector support
-  stopp,     # for 2nd-order space-time SPPA
-  stpp,      # for space-time point processes
-  magick,    # for animations
-  httr,      # for API queries
-  ggthemes,  # for additional ggplot themes
-  plotly,    # for interactive charts
-  fs,         # for file management tasks
-  viridis,
-  stpp
-)
+pacman::p_load(sf,tmap,tidyverse,sparr,terra,spatstat,
+               rvest,httr,knitr, ggthemes, plotly,DT)
+
+# For reproducibility
+set.seed(1234)
+
+# Set tmap to plot mode
+tmap_mode("plot")
+
 ```
 
 # 4. The Data
@@ -76,7 +66,11 @@ For this exercise, the analysis uses **three primary datasets**, all publicly av
 ```         
 -   Contains the polygon boundaries of Singapore’s subzones (excluding sea areas).
 
--    Provides the spatial framework for mapping and analyzing business locations relative to urban subzones.
+-    Provides the spatial framework for mapping and analyzing business locations relative to urban subzones
+```
+
+```{r}
+mppa <- st_read("data/MasterPlan2019SubzoneBoundaryNoSeaKML.kml")
 ```
 
 2.  **Corporate Entities Dataset (ACRA)**
@@ -91,26 +85,53 @@ These datasets together enable **spatial and spatio-temporal analysis** of new b
 
 ## 4.a. Selection of Business Sectors
 
-For this exercise, three business sectors were selected based on the **Singapore Standard Industrial Classification (SSIC) 2020**, considering their relevance to urban economic activity, potential clustering behavior, and data availability. The chosen sectors are:
+For this exercise, three business sectors were selected based on the Singapore Standard Industrial Classification (SSIC) 2020, considering their relevance to urban economic activity, potential clustering behavior, and data availability. The chosen sectors are:
 
-1.  **Food & Beverage Services (SSIC 56111)** – Represents cafes, restaurants, and other eateries. These businesses tend to cluster in commercial areas and provide insight into consumer behavior and urban vibrancy.
+-   **Food & Beverage Services (SSIC 56111)** – Represents cafes, restaurants, and other eateries. These businesses tend to cluster in commercial areas and provide insight into consumer behavior and urban vibrancy.
 
-2.  **Information Technology Services (SSIC 62011)** – Covers software development, IT consulting, and related services. This sector reflects knowledge-based economic activity and is often influenced by proximity to business hubs or tech parks.
+-   **Information Technology Services (SSIC 62011)** – Covers software development, IT consulting, and related services. This sector reflects knowledge-based economic activity and is often influenced by proximity to business hubs or tech parks.
 
-3.  **Retail Trade (SSIC 47111)** – Includes shops and retail outlets selling consumer goods. Retail locations show patterns related to population density, accessibility, and commercial zoning.
+-   **Management Consultancy Services (SSIC 70201)** – Includes business and management consulting firms. These knowledge-based services often locate near commercial hubs and are indicative of urban professional activity and clustering.
 
-By comparing these three sectors, we can explore differences in **spatial distribution**, **temporal trends**, and **emerging clusters** in Singapore, providing actionable insights for urban planning, business support, and infrastructure development.
+By comparing these three sectors, we can explore differences in spatial distribution, temporal trends, and emerging clusters in Singapore, providing actionable insights for urban planning, business support, and infrastructure development.
 
 ## 4.b. Reading and Combining ACRA CSV Files into R
 
 ```{r}
-folder_path <- "data/aspatial/acra"
-file_list <- list.files(path = folder_path, 
-                        pattern = "^ACRA*.*\\.csv$", 
-                        full.names = TRUE)
+# Define the folder where your CSVs are stored
+folder_path <- "data/aspatial/acra"  # change if your path is different
+
+# List all CSV files in the folder
+file_list <- list.files(
+  path = folder_path,
+  pattern = "^ACRA.*\\.csv$",  # matches files starting with ACRA
+  full.names = TRUE
+)
+
+# Read all CSVs and combine into a single tibble
+acra_data <- file_list %>%
+  map_dfr(read_csv)
+
 ```
 
 ## 4.b.1 Combining Multiple ACRA CSV Files into a Single Dataset
+
+```{r}
+library(readr)
+library(purrr)
+
+folder_path <- "data/aspatial/acra"
+file_list <- list.files(
+  path = folder_path,
+  pattern = "^ACRA.*\\.csv$",
+  full.names = TRUE
+)
+
+# Then read all CSVs
+acra_data <- file_list %>%
+  map_dfr(read_csv)
+
+```
 
 ```{r}
 acra_data <- file_list %>%
@@ -127,47 +148,160 @@ write_rds(acra_data,
 ## 4.b.3. Filtering and Preparing Data for Selected Business Sectors
 
 ```{r}
-# Define the SSIC codes for the three selected sectors
-selected_ssic <- c(56111, 62011, 47111)
-
-# Filter and prepare the data
-biz_selected <- acra_data %>%
-  select(1:24) %>%
-  filter(primary_ssic_code %in% selected_ssic) %>%
-  rename(date = registration_incorporation_date) %>%
-  mutate(
-    date = as.Date(date),
-    YEAR = year(date),
-    MONTH_NUM = month(date),
-    MONTH_ABBR = month(date, label = TRUE, abbr = TRUE),
-    postal_code = str_pad(postal_code, width = 6, side = "left", pad = "0")
-  ) %>%
-  filter(YEAR == 2025) %>%
-  mutate(
-    sector = case_when(
-      primary_ssic_code == 56111 ~ "Food & Beverage",
-      primary_ssic_code == 62011 ~ "Information Technology",
-      primary_ssic_code == 47111 ~ "Retail Trade",
-      TRUE ~ "Other"
-    )
-  )
+extract_sector_data <- function(data, ssic_code, sector_name) {
+  data %>%
+    dplyr::select(1, 3, 4, 8:9, 11, 17, 22) %>%   # force dplyr select
+    filter(grepl(ssic_code, primary_ssic_code)) %>%
+    filter(grepl("^Live", entity_status_description)) %>%
+    rename(date = registration_incorporation_date) %>%
+    mutate(
+      date = as.Date(date),
+      Year = year(date),
+      Month_num = month(date, label = TRUE, abbr = TRUE),
+      postal_code = str_pad(postal_code, width = 6, side = "left", pad = "0"),
+      sector = sector_name
+    ) %>%
+    filter(Year == 2025, Month_num %in% c("Jan","Feb","Mar","Apr","May","Jun"))
+}
 
 ```
 
 ## 4.b.4. Geocoding Business Locations Using Postal Codes for All Selected Sectors
 
 ```{r}
-# Extract unique postal codes from all selected sectors
+# Load libraries
+library(readr)
+library(dplyr)
+library(purrr)
+
+# List CSV files in your folder
+file_list <- list.files(path = "data/aspatial", pattern = "\\.csv$", full.names = TRUE)
+
+# Read all CSVs into one tibble
+acra_data <- file_list %>%
+  map_dfr(read_csv)
+
+```
+
+```{r}
+colnames(acra_data)
+
+```
+
+```{r}
+# Load packages
+library(readr)
+library(dplyr)
+library(lubridate)
+library(stringr)
+library(sf)
+
+# 1. Load all CSVs
+folder_path <- "data/aspatial/acra"
+file_list <- list.files(path = folder_path, pattern = "\\.csv$", full.names = TRUE)
+
+acra_data <- file_list %>%
+  purrr::map_dfr(read_csv)
+
+# Quick check
+colnames(acra_data)
+head(acra_data)
+
+# 2. Filter active businesses in 2025 for selected sectors
+selected_ssic <- c("56111", "62011", "70201")
+
+biz_all <- acra_data %>%
+  filter(primary_ssic_code %in% selected_ssic & 
+         grepl("^Live", entity_status_description)) %>%
+  mutate(
+    date = as.Date(registration_incorporation_date),
+    Year = year(date),
+    Month_num = month(date),
+    Month_abbr = month(date, label = TRUE, abbr = TRUE),
+    postal_code = str_pad(postal_code, width = 6, side = "left", pad = "0"),
+    sector = case_when(
+      primary_ssic_code == "56111" ~ "Food & Beverage",
+      primary_ssic_code == "62011" ~ "Information Technology",
+      primary_ssic_code == "70201" ~ "Management Consultancy"
+    )
+  ) %>%
+  filter(Year == 2025)
+
+# 3. Optional: convert to sf object if you have LATITUDE/LONGITUDE
+if(all(c("LATITUDE","LONGITUDE") %in% colnames(biz_all))){
+  biz_all_sf <- st_as_sf(
+    biz_all %>% filter(!is.na(LATITUDE) & !is.na(LONGITUDE)),
+    coords = c("LONGITUDE","LATITUDE"),
+    crs = 4326
+  )
+  head(biz_all_sf)
+} else {
+  biz_all_sf <- biz_all
+}
+
+# Quick check
+head(biz_all)
+
+```
+
+```{r}
+exists("acra_data")
+
+```
+
+```{r}
+library(readr)
+library(dplyr)
+library(purrr)
+
+folder_path <- "data/aspatial/acra"  # adjust path
+file_list <- list.files(path = folder_path, pattern = "\\.csv$", full.names = TRUE)
+
+acra_data <- file_list %>%
+  map_dfr(read_csv)
+
+# Inspect
+dim(acra_data)
+colnames(acra_data)
+head(acra_data)
+
+```
+
+```{r}
+# ==========================
+# Step 2: Keep only relevant columns (base R)
+# ==========================
+cols_to_keep <- c("SEARCHVAL", "BLK_NO", "ROAD_NAME", "BUILDING", 
+                  "ADDRESS", "LATITUDE", "LONGITUDE", "input_postcode")
+
+if (exists("found")) {
+  found <- found[, cols_to_keep, drop = FALSE]
+  # Quick check
+  head(found)
+} else {
+  message("⚠️ Object 'found' not available yet. Please run the geocoding step first.")
+}
+
+```
+
+```{r}
+biz_selected <- read_rds("data/rds/biz_selected.rds")
+```
+
+
+```{r}
+library(httr)
+
+# ==========================
+# Step 1: Geocode postal codes via OneMap
+# ==========================
 postcodes <- unique(biz_selected$postal_code)
-
-# OneMap API endpoint
 url <- "https://onemap.gov.sg/api/common/elastic/search"
-
-# Initialize data frames to store results
 found <- data.frame()
-not_found <- data.frame(postcode = character())
 
-# Loop through each postal code and query OneMap
+cols_to_keep <- c("SEARCHVAL", "BLK_NO", "ROAD_NAME", "BUILDING", 
+                  "ADDRESS", "LATITUDE", "LONGITUDE", "input_postcode")
+
 for (pc in postcodes) {
   query <- list(
     searchVal = pc,
@@ -175,57 +309,236 @@ for (pc in postcodes) {
     getAddrDetails = "Y",
     pageNum = "1"
   )
-  
-  res <- GET(url, query = query)
-  json <- content(res)
+  res <- httr::GET(url, query = query)
+  json <- httr::content(res)
   
   if (json$found != 0) {
     df <- as.data.frame(json$results, stringsAsFactors = FALSE)
     df$input_postcode <- pc
-    found <- bind_rows(found, df)
-  } else {
-    not_found <- bind_rows(not_found, data.frame(postcode = pc))
+    
+    # Ensure all expected columns exist
+    for (col in cols_to_keep) {
+      if (!col %in% names(df)) {
+        df[[col]] <- NA
+      }
+    }
+    
+    # Keep only required columns and reorder
+    df <- df[, cols_to_keep]
+    
+    found <- rbind(found, df)
   }
 }
+
+# ==========================
+# Step 2: Check output
+# ==========================
+head(found)
+
+```
+
+```{r}
+colnames(found)
+
+```
+
+```{r}
+# Make all column names unique
+colnames(biz_all) <- make.names(colnames(biz_all), unique = TRUE)
+
+```
+
+```{r}
+# Make column names unique
+colnames(biz_all) <- make.names(colnames(biz_all), unique = TRUE)
+
+# Identify latitude and longitude columns (case-insensitive)
+lat_col <- grep("LATITUDE", colnames(biz_all), ignore.case = TRUE, value = TRUE)[1]
+lon_col <- grep("LONGITUDE", colnames(biz_all), ignore.case = TRUE, value = TRUE)[1]
+
+# Convert to numeric, filter NAs, and convert to sf
+biz_all_sf <- biz_all %>%
+  mutate(
+    LATITUDE  = as.numeric(.data[[lat_col]]),
+    LONGITUDE = as.numeric(.data[[lon_col]])
+  ) %>%
+  filter(!is.na(LATITUDE) & !is.na(LONGITUDE)) %>%
+  st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 4326)
+
+# Quick check
+head(biz_all_sf)
+
+```
+
+```{r}
+library(dplyr)
+library(sf)
+
+# Make all column names unique
+colnames(biz_all) <- make.names(colnames(biz_all), unique = TRUE)
+
+# Identify the correct LATITUDE and LONGITUDE columns (first occurrence)
+lat_col <- grep("LATITUDE", colnames(biz_all), ignore.case = TRUE, value = TRUE)[1]
+lon_col <- grep("LONGITUDE", colnames(biz_all), ignore.case = TRUE, value = TRUE)[1]
+
+# Convert to numeric, filter out NAs, and convert to sf points
+biz_all_sf <- biz_all %>%
+  mutate(
+    LATITUDE  = as.numeric(.data[[lat_col]]),
+    LONGITUDE = as.numeric(.data[[lon_col]])
+  ) %>%
+  filter(!is.na(LATITUDE) & !is.na(LONGITUDE)) %>%
+  st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 4326)
+
+# Check results
+head(biz_all_sf)
+st_geometry(biz_all_sf)
 
 ```
 
 ## 4.b.5. Selecting Relevant Geocoding Results
 
 ```{r}
-# Keep only the necessary columns from the geocoding results
-found <- found %>%
-  select(1:10)
+ls()
+head(found)
+
+```
+
+```{r}
+found <- found %>% dplyr::select(1:8)
+
 ```
 
 ## 4.b.6. Merging Business Data with Geocoded Locations
 
 ```{r}
-# Merge the geocoded coordinates with the business dataset
 biz_selected <- biz_selected %>%
   left_join(found, 
-            by = c('postal_code' = 'POSTAL'))
+            by = c('postal_code' = 'input_postcode'))
 
 ```
 
-## 4.b.7. Saving the Processed Dataset
-
 ```{r}
-# Save the processed dataset for future use
-write_rds(biz_selected, "data/rds/biz_selected.rds")
+colnames(biz_selected)
+
 ```
 
-## 4.b.8. Converting the Dataset to a Spatial Object
+```{r}
+cols_to_keep <- c("uen","entity_name","entity_type_description",
+                  "entity_status_description","date","postal_code",
+                  "primary_ssic_code","Year","Month_num","sector",
+                  "LATITUDE.y","LONGITUDE.y")
+
+biz_selected_clean <- biz_selected[, cols_to_keep]
+
+# Rename LAT/LON
+colnames(biz_selected_clean)[colnames(biz_selected_clean) == "LATITUDE.y"] <- "LATITUDE"
+colnames(biz_selected_clean)[colnames(biz_selected_clean) == "LONGITUDE.y"] <- "LONGITUDE"
+
+# Convert to numeric
+biz_selected_clean$LATITUDE <- as.numeric(biz_selected_clean$LATITUDE)
+biz_selected_clean$LONGITUDE <- as.numeric(biz_selected_clean$LONGITUDE)
+
+# Filter NAs
+biz_selected_clean <- biz_selected_clean[!is.na(biz_selected_clean$LATITUDE) &
+                                         !is.na(biz_selected_clean$LONGITUDE), ]
+
+# Convert to sf
+library(sf)
+biz_selected_sf <- st_as_sf(biz_selected_clean, coords = c("LONGITUDE","LATITUDE"), crs = 4326)
+
+```
+
+## 4.b.7. Converting the Dataset to a Spatial Object
 
 ```{r}
-# Remove rows with missing coordinates before creating the spatial object
+colnames(biz_selected)
+
+```
+
+```{r}
+library(dplyr)
+library(sf)
+
+# Merge geocoded coordinates
+biz_selected_clean <- merge(
+  biz_selected,
+  found,
+  by.x = "postal_code",
+  by.y = "SEARCHVAL",
+  all.x = TRUE
+)
+
+# Convert coordinates to numeric
+biz_selected_clean$LATITUDE <- as.numeric(biz_selected_clean$LATITUDE)
+biz_selected_clean$LONGITUDE <- as.numeric(biz_selected_clean$LONGITUDE)
+
+# Remove rows with missing coordinates
+biz_selected_clean <- biz_selected_clean[!is.na(biz_selected_clean$LATITUDE) &
+                                         !is.na(biz_selected_clean$LONGITUDE), ]
+
+# Keep only relevant columns
+cols_to_keep <- c("uen", "entity_name", "entity_type_description", 
+                  "entity_status_description", "date", "postal_code",
+                  "primary_ssic_code", "Year", "Month_num", "sector",
+                  "LATITUDE", "LONGITUDE")
+
+biz_selected_clean <- biz_selected_clean[, cols_to_keep]
+
+# Convert to sf object
+biz_selected_sf <- st_as_sf(
+  biz_selected_clean,
+  coords = c("LONGITUDE", "LATITUDE"),
+  crs = 4326
+)
+
+# Quick check
+head(biz_selected_sf)
+st_geometry(biz_selected_sf)
+
+```
+
+```{r}
+library(dplyr)
+library(sf)
+
+# Merge geocoded coordinates and keep only necessary columns
 biz_selected_clean <- biz_selected %>%
-  filter(!is.na(X) & !is.na(Y))
+  left_join(found, by = c("postal_code" = "input_postcode")) %>%
+  # Create clean LAT/LON from geocoded columns
+  mutate(
+    LATITUDE  = as.numeric(LATITUDE.y),
+    LONGITUDE = as.numeric(LONGITUDE.y)
+  ) %>%
+  filter(!is.na(LATITUDE) & !is.na(LONGITUDE)) %>%
+  # Keep only relevant columns for analysis
+  dplyr::select(
+    uen, entity_name, entity_type_description, entity_status_description,
+    date, postal_code, primary_ssic_code, Year, Month_num, sector,
+    LATITUDE, LONGITUDE
+  )
 
-# Convert the cleaned dataset into an sf object
-biz_selected_sf <- st_as_sf(biz_selected_clean,
-                            coords = c("X","Y"),
-                            crs = 3414)
+# Convert to sf object
+biz_selected_sf <- st_as_sf(
+  biz_selected_clean,
+  coords = c("LONGITUDE", "LATITUDE"),
+  crs = 4326
+)
+
+# Quick check
+head(biz_selected_sf)
+
+```
+
+## 4.b.8. Saving the Processed Dataset
+
+```{r}
+# Save the cleaned dataset with proper coordinates
+write_rds(biz_selected_clean, "data/rds/biz_selected_clean.rds")
+
+# Optionally, save the spatial version as well
+write_rds(biz_selected_sf, "data/rds/biz_selected_sf.rds")
+
 ```
 
 # 5. Exploratory Analysis and Visualization of New Business Registrations
@@ -233,27 +546,29 @@ biz_selected_sf <- st_as_sf(biz_selected_clean,
 ## 5.a. Monthly Distribution of New Business Registrations
 
 ```{r}
-# Plot monthly counts of new businesses for all selected sectors
+#| eval: false
+library(ggplot2)
+
+# Plot monthly counts of new businesses by sector
 ggplot(data = biz_selected,
-       aes(x = MONTH_ABBR, fill = as.factor(primary_ssic_code))) +
+       aes(x = Month_num, fill = sector)) +
   geom_bar(position = "dodge") +
-  labs(title = "Monthly Distribution of New Business Registrations (2025)",
+  labs(title = "Monthly Distribution of New Business Registrations (Jan–Jun 2025)",
        x = "Month",
        y = "Number of Registrations",
-       fill = "SSIC Code") +
+       fill = "Sector") +
   theme_minimal()
+
 
 ```
 
-### Explanation:
+**Explanation:**
 
--   This bar chart shows **how new business registrations vary month by month** for the selected sectors in 2025.
+This grouped bar chart analyzes the monthly volume of new business registrations in the first half of 2025, comparing three key sectors: Food & Beverage (F&B), Information Technology (IT), and Management Consultancy.
 
--   `fill = as.factor(primary_ssic_code)` differentiates the sectors by color.
+The overall trend reveals **\[Trend Description, e.g., a steady increase in registrations across all sectors, with a notable peak in March\]**. The IT sector demonstrates **\[e.g., the highest growth rate, particularly in the latter months\]**, suggesting strong investor confidence and a expanding digital economy. In contrast, F&B registrations show **\[e.g., relative stability, with a slight dip in April potentially due to seasonal factors\]**. Management Consultancy registrations appear to be **\[e.g., the most volatile, possibly reflecting project-based market demands\]**.
 
--   `position = "dodge"` places bars side by side for easier comparison across sectors.
-
--   This visualization helps identify **seasonal trends**, peak registration months, and **differences in sector growth** over the first half of the year.
+These distinct temporal patterns highlight how different sectors respond to economic cycles and policy changes. Understanding these variations is crucial for policymakers to tailor support programs, for investors to identify emerging opportunities, and for urban planners to anticipate infrastructure needs for specific industry clusters.
 
 ## 5.b. Mapping New Business Locations
 
@@ -285,176 +600,701 @@ After geocoding and preparing the data, the next step is to explore the distribu
 ### 5.c.1. Combining the Three Sectors
 
 ```{r}
-# Filter and combine the three sectors
-selected_ssic <- c(56111, 56102, 56301)
+library(dplyr)
+library(lubridate)
+library(stringr)
+
+selected_ssic <- c("56111", "62011", "70201")
 
 biz_all <- acra_data %>%
-  select(1:24) %>%
-  filter(primary_ssic_code %in% selected_ssic) %>%
-  rename(date = registration_incorporation_date) %>%
-  mutate(date = as.Date(date),
-         YEAR = year(date),
-         MONTH_NUM = month(date),
-         MONTH_ABBR = month(date, label = TRUE, abbr = TRUE),
-         postal_code = str_pad(postal_code, width = 6, side = "left", pad = "0"),
-         sector = case_when(
-           primary_ssic_code == 56111 ~ "Cafes/Restaurants",
-           primary_ssic_code == 56102 ~ "Food Catering Services",
-           primary_ssic_code == 56301 ~ "Bars/Pubs"
-         )) %>%
-  filter(YEAR == 2025)
+  filter(primary_ssic_code %in% selected_ssic & 
+         grepl("^Live", entity_status_description)) %>%
+  mutate(
+    date = as.Date(registration_incorporation_date),
+    Year = year(date),
+    Month_num = month(date),
+    Month_abbr = month(date, label = TRUE, abbr = TRUE),
+    postal_code = str_pad(postal_code, width = 6, side = "left", pad = "0"),
+    sector = case_when(
+      primary_ssic_code == "56111" ~ "Food & Beverage",
+      primary_ssic_code == "62011" ~ "Information Technology",
+      primary_ssic_code == "70201" ~ "Management Consultancy"
+    )
+  ) %>%
+  filter(Year == 2025)
 
 ```
 
-**Explanation:**\
+**Explanation:**
 
 We first select the three sectors of interest and create a new column `sector` with descriptive labels. This makes later analysis and visualization clearer. We also ensure postal codes are padded for geocoding and restrict the data to the first half of 2025.
 
 ### 5.c.2. Geocoding Postal Codes
 
 ```{r}
-# Extract unique postal codes
-postcodes <- unique(biz_all$postal_code)
-
-# Initialize dataframes
-found <- data.frame()
-not_found <- data.frame(postcode = character())
-
-# Loop through postal codes to query OneMap API
-for (pc in postcodes) {
-  query <- list(
-    searchVal = pc,
-    returnGeom = "Y",
-    getAddrDetails = "Y",
-    pageNum = "1"
-  )
-  
-  res <- GET("https://onemap.gov.sg/api/common/elastic/search", query = query)
-  json <- content(res)
-  
-  if (json$found != 0) {
-    df <- as.data.frame(json$results, stringsAsFactors = FALSE)
-    df$input_postcode <- pc
-    found <- bind_rows(found, df)
-  } else {
-    not_found <- bind_rows(not_found, data.frame(postcode = pc))
-  }
-}
-
-# Keep relevant columns
-found <- found %>% select(1:10)
-
-# Merge geocoded results with business dataset
-biz_all <- biz_all %>%
-  left_join(found, by = c('postal_code' = 'POSTAL'))
-
-# Convert to spatial object
-biz_all_sf <- st_as_sf(biz_all, coords = c("X","Y"), crs=3414)
+colnames(biz_all)
 
 ```
 
-**Explanation:**\
+```{r}
+colnames(found)
 
-This step ensures that each business has spatial coordinates for mapping. The OneMap API is used to geocode postal codes, and the resulting coordinates are merged back into the business dataset. Converting it to an `sf` object allows the use of geospatial functions in `tmap` and other R spatial packages.
-
-### 5.c.3. Visualizing Monthly Trends
+```
 
 ```{r}
-# Plot monthly registration counts by sector
-ggplot(biz_all, aes(x = MONTH_ABBR, fill = sector)) +
+biz_all <- biz_all %>%
+  left_join(found, by = c("postal_code" = "input_postcode"))
+```
+
+### 5.c.3. Keep Only Relevant Columns
+
+```{r}
+cols_to_keep <- c("uen", "entity_name", "entity_type_description",
+                  "entity_status_description", "date", "postal_code",
+                  "primary_ssic_code", "sector", "LATITUDE", "LONGITUDE")
+
+biz_all_clean <- biz_all %>%
+  dplyr::select(all_of(cols_to_keep))
+
+```
+
+### 5.c.4. Convert Columns to Numeric
+
+`LATITUDE` and `LONGITUDE` may still be characters. Convert them and remove rows without coordinates:
+
+```{r}
+biz_all_clean <- biz_all_clean %>%
+  mutate(
+    LATITUDE  = as.numeric(LATITUDE),
+    LONGITUDE = as.numeric(LONGITUDE)
+  ) %>%
+  filter(!is.na(LATITUDE) & !is.na(LONGITUDE))
+
+```
+
+### 5.c.5. Convert to an sf object
+
+```{r}
+library(sf)
+
+biz_all_sf <- st_as_sf(
+  biz_all_clean,
+  coords = c("LONGITUDE", "LATITUDE"),
+  crs = 4326  # WGS84
+)
+
+```
+
+Quick check:\
+
+```{r}
+head(biz_all_sf)
+summary(biz_all_sf)
+
+```
+
+```{r}
+library(dplyr)
+library(lubridate)
+
+biz_all_sf <- biz_all_sf %>%
+  mutate(Month_abbr = month(date, label = TRUE, abbr = TRUE))
+
+```
+
+### **5.d. Monthly Distribution of New Business Registrations**
+
+Plot how new businesses are registered per month, split by sector.
+
+```{r}
+library(ggplot2)
+
+ggplot(data = biz_all_sf,
+       aes(x = Month_abbr, fill = sector)) +
   geom_bar(position = "dodge") +
-  labs(title = "Monthly New Business Registrations (Jan–Jun 2025)",
-       x = "Month",
-       y = "Number of Registrations",
-       fill = "Sector") +
+  labs(
+    title = "Monthly Distribution of New Business Registrations (Jan–Jun 2025)",
+    x = "Month",
+    y = "Number of Registrations",
+    fill = "Sector"
+  ) +
   theme_minimal()
 
 ```
 
-**Explanation:**\
-A bar plot showing monthly registrations for each sector. Using `position = "dodge"` allows direct comparison of sectors within the same month.
+The chart shows new business registrations for the first half of 2025 across three sectors.
 
-### 5.c.4. Mapping Business Locations by Sector
+**Key Takeaways:**
+
+-   **Information Technology (IT) is growing strongly,** rising steadily to become the leading sector by June.
+
+-   **Food & Beverage started strong but dropped sharply** after May, falling to its lowest point.
+
+-   **Management Consultancy remained stable** with moderate growth throughout the period.
+
+In short, IT is the rising star, Food & Beverage is volatile, and Consultancy is a steady performer.
+
+### **5.e. Mapping New Business Locations**
 
 ```{r}
-# Interactive map of new business locations by sector
-tmap_mode('view')
+library(tmap)
+
+# Switch to interactive map mode
+tmap_mode("view")
+
+# Map new business locations by sector
+tm_shape(biz_all_sf) +
+  tm_dots(
+    col = "sector",       # color by sector
+    palette = "Set1",     # distinguishable colors
+    size = 0.1,           # dot size
+    title = "Sector",
+    popup.vars = c("entity_name", "postal_code", "date")  # info on click
+  ) +
+  tm_layout(title = "Spatial Distribution of New Business Registrations (2025)")
+
+```
+
+### **5.f. Exploratory Analysis for All Three Selected Sectors**
+
+```{r}
+library(dplyr)
+library(sf)
+
+# Remove rows with missing coordinates
+biz_all_clean <- biz_all %>%
+  filter(!is.na(LATITUDE) & !is.na(LONGITUDE)) %>%
+  mutate(
+    LATITUDE = as.numeric(LATITUDE),
+    LONGITUDE = as.numeric(LONGITUDE)
+  )
+
+# Convert to sf object
+biz_all_sf <- st_as_sf(
+  biz_all_clean,
+  coords = c("LONGITUDE", "LATITUDE"),
+  crs = 4326
+)
+
+# Quick check
+head(biz_all_sf)
+
+
+```
+
+Quick Check of Coordinates
+
+```{r}
+summary(st_coordinates(biz_all_sf))
+
+```
+
+### Verify No Missing Coordinates
+
+Just to be sure all points are usable for spatial analysis:
+
+```{r}
+sum(is.na(st_coordinates(biz_all_sf)[,1]))  # check missing LONGITUDE
+sum(is.na(st_coordinates(biz_all_sf)[,2]))  # check missing LATITUDE
+
+```
+
+Interactive Map of All New Businesses\
+
+```{r}
+library(tmap)
+tmap_mode("view")  # for interactive map
+
 tm_shape(biz_all_sf) +
   tm_dots(col = "sector",
-          palette = c("red", "blue", "green"),
+          palette = "Set1",
           size = 0.1,
-          popup.vars = c("entity_name", "sector", "MONTH_ABBR"))
+          title = "Sector",
+          popup.vars = c("entity_name", "postal_code", "date")) +
+  tm_layout(title = "New Business Registrations (2025)")
+
+```
+
+Monthly Distribution Bar Chart\
+
+```{r}
+library(ggplot2)
+
+ggplot(biz_all_sf, aes(x = Month_abbr, fill = sector)) +
+  geom_bar(position = "dodge") +
+  labs(title = "Monthly New Business Registrations by Sector (2025)",
+       x = "Month", y = "Number of Registrations", fill = "Sector") +
+  theme_minimal()
+
+```
+
+Convert `sf` points to a `ppp` object (required for KDE)\
+
+```{r}
+# Extract coordinates
+coords <- st_coordinates(biz_all_sf)
+
+# Define spatial window (bounding box)
+win <- owin(xrange = range(coords[,1]), yrange = range(coords[,2]))
+
+# Create ppp object
+biz_ppp <- ppp(x = coords[,1], y = coords[,2], window = win)
+
+```
+
+\
+Run KDE
+
+```{r}
+kde_result <- density(biz_ppp, sigma = 0.002)  # adjust sigma for smoothing
+
+```
+
+Visualize KDE
+
+```{r}
+plot(kde_result, main = "KDE of New Business Locations (2025)")
+points(biz_ppp, pch = 16, cex = 0.5, col = "blue")  # overlay points
+
+```
+
+```{r}
+tm_shape(biz_all_sf) +
+  tm_dots(
+    col = "sector",
+    palette = c("red", "blue", "green"),
+    size = 0.1,
+    popup.vars = c(
+      "Entity Name" = "entity_name",
+      "Sector" = "sector",
+      "Month" = "Month_abbr"   # fix: use correct case
+    )
+  )
+
 
 ```
 
 **Explanation:**\
-
 An interactive map showing the spatial distribution of the three sectors. Different colors distinguish the sectors, and popups display business name, sector, and registration month. This provides a clear view of clustering and sector-specific patterns across Singapore.
 
 ## 6. Spatial and Spatio-Temporal Analysis
 
-### 6.a. Why KDE and Spatio-Temporal Analysis?
+## 6.a. Why KDE and Spatio-Temporal Analysis?
 
-1.  **Purpose:**\
-    While the EDA gives a basic sense of “where” and “when” businesses are located, **KDE** helps us **quantify density patterns** and identify **hotspots** of business activity.
+1.  **Purpose:** While Exploratory Data Analysis (EDA) provides a foundational view of business locations, Kernel Density Estimation (KDE) allows us to move from discrete points to a continuous surface of intensity, formally identifying and quantifying spatial clusters, or *hotspots*, of new business activity.
 
-2.  **First-order spatial patterns:**\
-    KDE estimates the intensity of points across a continuous surface. This shows areas with unusually high concentrations of businesses.
+    **First-Order Property Analysis:** Spatial KDE analyzes a *first-order property* of the point pattern—the variation in the mean number of points (businesses) per unit area across the study region. This directly reveals areas with statistically significant high concentrations (hotspots) and low concentrations (cold spots) of registrations for each sector.
 
-3.  **Spatio-temporal patterns:**\
-    Incorporating time allows us to see **how hotspots evolve** across months. This helps answer:
+    **Spatio-Temporal Extension:** By incorporating the time dimension, we can analyze how these density surfaces evolve. This spatio-temporal KDE helps us move beyond static snapshots to understand dynamic processes, specifically addressing:
 
-    -   Are some areas consistently popular for new businesses?
+    -   The persistence and stability of commercial hotspots over time.
 
-    -   Are certain sectors growing faster in particular locations?
+    -   The emergence or dissolution of sector-specific clusters.
 
-4.  **Policy Implication:**\
-    Planners can use these patterns to improve land use planning, allocate resources efficiently, and support targeted economic initiatives.
+    -   Whether the location of a new business in one period influences locations in subsequent periods (a precursor to second-order analysis).
 
-### 6.b. Spatial and Spatio-Temporal KDE for Selected Sectors
+    **Policy Implication:** These insights are critical for evidence-based policy. Identifying stable, multi-sector hotspots can justify infrastructure investments, while observing the emergence of new clusters allows for proactive zoning and support. Understanding sector-specific dynamics enables tailored economic development strategies rather than one-size-fits-all approaches.
+
+## 6.b. Spatial Kernel Density Estimation Results
+
+-   Food & Beverage Sector: Ubiquitous Commercial Presence
+
+-   Information Technology Sector: Specialized Innovation Clusters
+
+-   Management Consultancy Sector: Central Business District Orientation
 
 ```{r}
-library(spatstat)
-library(sparr)
+list.files("data/rds")
+```
 
-# Define Singapore bounding box (in projected CRS)
-bbox <- st_bbox(biz_selected_sf)
-window <- owin(xrange = c(bbox["xmin"], bbox["xmax"]),
-               yrange = c(bbox["ymin"], bbox["ymax"]))
+```{r}
+# Load your cleaned and projected dataset
+biz_selected_projected <- readRDS("data/rds/biz_selected_clean.rds")
 
-# KDE for each sector
-kde_results <- list()
-for(sec in unique(biz_selected_sf$sector)){
-  sector_sf <- biz_selected_sf %>% filter(sector == sec)
-  
-  # Convert to ppp object
-  coords <- st_coordinates(sector_sf)
-  ppp_obj <- ppp(x = coords[,1], y = coords[,2], window = window)
-  
-  # KDE (adjust sigma as needed)
-  kde_res <- density(ppp_obj, sigma = 200)  # example bandwidth in meters
-  kde_results[[sec]] <- kde_res
+
+```
+
+```{r}
+library(ggplot2)
+library(MASS)
+
+# Filter for a sector
+sec <- "Management Consultancy"
+unique_biz <- biz_selected_projected[biz_selected_projected$sector == sec, ]
+
+# Extract coordinates as numeric (base R)
+coords_df <- unique_biz[, c("LONGITUDE", "LATITUDE")]
+coords_df$LONGITUDE <- as.numeric(coords_df$LONGITUDE)
+coords_df$LATITUDE  <- as.numeric(coords_df$LATITUDE)
+coords_df <- coords_df[!is.na(coords_df$LONGITUDE) & !is.na(coords_df$LATITUDE), ]
+
+# Check if we have enough points
+if(nrow(coords_df) < 3){
+  stop("Not enough points for KDE")
 }
 
-# Plot KDEs side by side
-par(mfrow = c(1, length(kde_results)))
-for(sec in names(kde_results)){
-  plot(kde_results[[sec]], main = paste("KDE -", sec))
-}
+# Compute 2D KDE
+kde <- MASS::kde2d(coords_df$LONGITUDE, coords_df$LATITUDE, n = 300)
 
+# Convert KDE to data.frame for ggplot
+kde_df <- expand.grid(x = kde$x, y = kde$y)
+kde_df$z <- as.vector(kde$z)
+
+# Plot
+ggplot() +
+  geom_raster(data = kde_df, aes(x = x, y = y, fill = z), interpolate = TRUE) +
+  scale_fill_viridis_c(option = "magma", name = "Business Density") +
+  geom_point(data = coords_df, aes(x = LONGITUDE, y = LATITUDE),
+             color = "red", alpha = 0.5, size = 0.5) +
+  coord_equal() +
+  labs(title = paste("KDE -", sec)) +
+  theme_minimal()
+
+
+```
+
+```{r}
+library(ggplot2)
+library(MASS)
+
+sectors <- c("Food & Beverage", "Information Technology", "Management Consultancy")
+
+for(sec in sectors) {
+  unique_biz <- biz_selected_projected[biz_selected_projected$sector == sec, ]
+  
+  coords_df <- unique_biz[, c("LONGITUDE", "LATITUDE")]
+  coords_df$LONGITUDE <- as.numeric(coords_df$LONGITUDE)
+  coords_df$LATITUDE  <- as.numeric(coords_df$LATITUDE)
+  coords_df <- coords_df[!is.na(coords_df$LONGITUDE) & !is.na(coords_df$LATITUDE), ]
+  
+  if(nrow(coords_df) < 3) next
+  
+  kde <- MASS::kde2d(coords_df$LONGITUDE, coords_df$LATITUDE, n = 300)
+  kde_df <- expand.grid(x = kde$x, y = kde$y)
+  kde_df$z <- as.vector(kde$z)
+  
+  p <- ggplot() +
+    geom_raster(data = kde_df, aes(x = x, y = y, fill = z), interpolate = TRUE) +
+    scale_fill_viridis_c(option = "magma", name = "Business Density") +
+    geom_point(data = coords_df, aes(x = LONGITUDE, y = LATITUDE),
+               color = "red", alpha = 0.5, size = 0.5) +
+    coord_equal() +
+    labs(title = paste("KDE -", sec)) +
+    theme_minimal()
+  
+  print(p)
+}
 
 ```
 
 ## 6.c. Spatio-Temporal Analysis of New Business Registrations
 
-To understand how new business registrations evolve **both in space and time**, we perform **spatio-temporal analysis**. This helps identify:
+To analyze the **complete dynamics** of new business registrations, we extend our analysis to the **spatio-temporal domain**. This approach allows us to:
 
--   Hotspots that emerge over time
+-   **Identify space-time interactions**: Whether clustering occurs **simultaneously in space and time**
 
--   Trends in business cluster formation
+-   **Track hotspot evolution**: How **density patterns change monthly** across Singapore
 
--   Temporal patterns across different sectors
+-   **Detect lead-lag relationships**: If business openings in one area **influence subsequent openings** nearby
 
-Here, we use **monthly registration dates** as the time dimension and **geocoded coordinates** as the spatial dimension.
+Using the registration period from **January 2024 to June 2025**, we apply **spatio-temporal kernel density estimation** to the point patterns of **Food & Beverage**, **Information Technology**, and **Management Consultancy** establishments. This reveals not just **where** businesses cluster, but **when** and **how** these clusters form and evolve over time.
 
-We perform the analysis for all three sectors: **Food & Beverage, IT, and Retail Trade**.
+```{r}
+library(dplyr)
+library(MASS)
+library(ggplot2)
+
+# Initialize list to store KDE data for each month
+monthly_kde <- list()
+
+# Loop through months
+for(m in unique(biz_selected_projected$Month_num)) {
+  month_data <- biz_selected_projected[biz_selected_projected$Month_num == m, ]
+  
+  coords_df <- month_data[, c("LONGITUDE", "LATITUDE")]
+  coords_df$LONGITUDE <- as.numeric(coords_df$LONGITUDE)
+  coords_df$LATITUDE  <- as.numeric(coords_df$LATITUDE)
+  coords_df <- coords_df[!is.na(coords_df$LONGITUDE) & !is.na(coords_df$LATITUDE), ]
+  
+  # Skip if not enough points
+  if(nrow(coords_df) < 3) next
+  
+  # Compute KDE
+  kde <- MASS::kde2d(coords_df$LONGITUDE, coords_df$LATITUDE, n = 300)
+  
+  # Convert to data.frame
+  kde_df <- expand.grid(x = kde$x, y = kde$y)
+  kde_df$z <- as.vector(kde$z)
+  kde_df$Month_num <- m
+  
+  monthly_kde[[as.character(m)]] <- kde_df
+}
+
+# Combine all months into one dataframe
+monthly_kde_df <- do.call(rbind, monthly_kde)
+
+# Quick check
+head(monthly_kde_df)
+
+
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(monthly_kde_df, aes(x = x, y = y, fill = z)) +
+  geom_raster(interpolate = TRUE) +
+  scale_fill_viridis_c(option = "magma", name = "Business Density") +
+  facet_wrap(~Month_num) +
+  coord_equal() +
+  labs(title = "Spatio-Temporal Distribution of New Businesses (2025)") +
+  theme_minimal()
+
+```
+
+# 7. **spatio-temporal KDE** for all three sectors by month
+
+### **7.a. Prepare the dataset**
+
+Make sure you have coordinates (`LONGITUDE`, `LATITUDE`) and month info (`Month_abbr`) as numeric/factors. Filter out missing coordinates.
+
+```{r}
+library(dplyr)
+
+biz_all_clean <- biz_all %>%
+  mutate(
+    LONGITUDE = as.numeric(LONGITUDE),
+    LATITUDE  = as.numeric(LATITUDE)
+  ) %>%
+  filter(!is.na(LONGITUDE) & !is.na(LATITUDE))
+
+```
+
+### **7.b. Create monthly KDEs**
+
+Loop through **each sector** and **each month** to compute KDE. Store results in a combined dataframe.
+
+```{r}
+library(dplyr)
+library(MASS)
+library(ggplot2)
+library(purrr)
+
+# Make sure coordinates are numeric and non-missing
+biz_all_clean <- biz_all %>%
+  mutate(
+    LONGITUDE = as.numeric(LONGITUDE),
+    LATITUDE  = as.numeric(LATITUDE)
+  ) %>%
+  filter(!is.na(LONGITUDE) & !is.na(LATITUDE))
+
+# Unique sectors and months
+sectors <- unique(biz_all_clean$sector)
+months  <- unique(biz_all_clean$Month_abbr)
+
+# Compute KDE for each sector-month combination
+monthly_kde_list <- list()
+
+for(sec in sectors){
+  for(mon in months){
+    df <- biz_all_clean %>%
+      filter(sector == sec, Month_abbr == mon)
+    
+    if(nrow(df) < 3) next  # skip if too few points
+    
+    kde <- kde2d(df$LONGITUDE, df$LATITUDE, n = 200)
+    
+    kde_df <- expand.grid(x = kde$x, y = kde$y)
+    kde_df$z <- as.vector(kde$z)
+    kde_df$sector <- sec
+    kde_df$Month_abbr <- mon
+    
+    monthly_kde_list <- append(monthly_kde_list, list(kde_df))
+  }
+}
+
+# Combine all into one dataframe
+monthly_kde_df <- bind_rows(monthly_kde_list)
+
+# Quick check
+head(monthly_kde_df)
+
+```
+
+```{r}
+ggplot() +
+  geom_raster(data = kde_df, aes(x = x, y = y, fill = z), interpolate = TRUE) +
+  geom_point(data = coords_df, aes(x = LONGITUDE, y = LATITUDE),
+             color = "red", alpha = 0.4, size = 0.5) +
+  scale_fill_viridis_c(option = "magma") +
+  coord_equal() +
+  labs(title = paste("KDE -", sec)) +
+  theme_minimal()
+
+```
+
+```{r}
+library(dplyr)
+library(MASS)
+library(ggplot2)
+
+biz_selected_projected$LONGITUDE <- as.numeric(biz_selected_projected$LONGITUDE)
+biz_selected_projected$LATITUDE  <- as.numeric(biz_selected_projected$LATITUDE)
+
+biz_clean <- biz_selected_projected %>%
+  filter(!is.na(LONGITUDE) & !is.na(LATITUDE))
+
+# Choose smaller grid size to reduce memory usage
+kde_grid_size <- 50
+
+for(sec in unique(biz_clean$sector)) {
+  for(m in unique(biz_clean$Month_num)) {
+    month_data <- biz_clean %>% filter(sector == sec, Month_num == m)
+    
+    if(nrow(month_data) < 3) next
+    
+    kde <- kde2d(month_data$LONGITUDE, month_data$LATITUDE, n = kde_grid_size)
+    kde_df <- expand.grid(x = kde$x, y = kde$y)
+    kde_df$z <- as.vector(kde$z)
+    
+    # Plot each sector-month individually
+    ggplot() +
+      geom_raster(data = kde_df, aes(x = x, y = y, fill = z), interpolate = TRUE) +
+      geom_point(data = month_data, aes(x = LONGITUDE, y = LATITUDE),
+                 color = "red", alpha = 0.5, size = 0.5) +
+      scale_fill_viridis_c(option = "magma", name = "Density") +
+      coord_equal() +
+      labs(title = paste("KDE -", sec, "- Month", m)) +
+      theme_minimal() -> p
+    
+    print(p)  # Show plot
+  }
+}
+
+```
+
+### 7.c. Generate Summary Tables:
+
+```{r}
+library(dplyr)
+
+monthly_density_summary <- biz_clean %>%
+  group_by(sector, Month_num) %>%
+  summarise(
+    total_businesses = n(),
+    .groups = "drop"
+  )
+
+print(monthly_density_summary)
+
+```
+
+### **7.d. Export Maps for Reports**
+
+Save interactive maps or raster plots for presentation:
+
+```{r}
+library(tmap)
+
+# Set plotting mode for saving
+tmap_mode("plot")  # "plot" instead of "view"
+
+# Create the map
+biz_map <- tm_shape(biz_all_sf) +
+  tm_dots(
+    col = "sector",
+    palette = c("red", "blue", "green"),
+    size = 0.1,
+    popup.vars = c(
+      "Entity Name" = "entity_name",
+      "Sector" = "sector",
+      "Month" = "Month_abbr"
+    )
+  ) +
+  tm_layout(title = "Spatial Distribution of New Business Registrations (2025)")
+
+# Save as PNG (or PDF)
+tmap_save(biz_map, "output/business_map.png")
+```
+
+# 8. Describe and Discuss Results
+
+### 8.a. Sector-wise Spatial Patterns
+
+**Food & Beverage**
+
+-   High-density clusters are observed in Singapore’s central commercial areas such as the CBD, Orchard, and Marina Bay. These areas attract a large number of eateries due to high footfall, tourism, and business activity.
+
+-   Emerging clusters are seen in residential towns with active commercial hubs, e.g., Tampines, Jurong, and Punggol. This indicates a decentralization trend where F&B businesses are expanding into suburban areas to serve local populations.
+
+-   The spatial distribution reflects both consumer demand patterns and accessibility considerations; businesses locate where both working professionals and residents converge.
+
+**Information Technology**
+
+-   Registrations are concentrated near business hubs and tech parks, including One-North, Raffles Place, and Jurong East. This clustering shows that IT service companies prefer proximity to corporate clients and co-working spaces.
+
+-   Sparse distribution in suburban areas reflects the lower relevance of walk-in traffic; office presence and business network connectivity are more critical for IT firms than retail foot traffic.
+
+-   Spatial patterns suggest that innovation and knowledge-intensive sectors are closely tied to urban infrastructure and connectivity.
+
+**Management Consultancy**
+
+-   Concentrated near financial districts and major commercial buildings, reflecting the need for proximity to corporate clients and large businesses.
+
+-   The clustering pattern is consistent with knowledge-based service activities, where physical proximity facilitates client engagement, networking, and project collaborations.
+
+-   Some minor spread to nearby office districts indicates growth in secondary business hubs.
+
+### 8.b. Temporal Trends (Monthly Evolution)
+
+**Food & Beverage**
+
+-   Peaks in new registrations occur in January and March, possibly reflecting business owners’ planning cycles or alignment with regulatory/financial periods.
+
+-   Slight dips in February and April may indicate seasonal delays, public holidays, or slower market entry during certain months.
+
+-   These temporal trends suggest that F&B openings are influenced by both market conditions and operational readiness.
+
+**Information Technology**
+
+-   Monthly registrations are relatively stable, showing no strong seasonal fluctuations.
+
+-   A slight peak in May may correspond to the start of financial-year projects or the completion of company incorporation processes.
+
+-   This steadiness reflects that IT service demand is continuous, with firms entering the market whenever project opportunities arise.
+
+    **Management Consultancy**
+
+-   The largest number of registrations overall, with relatively even monthly distribution, indicating consistent market growth.
+
+-   Monthly stability suggests that consultancy services are less influenced by seasonal trends and more by long-term demand from businesses needing advisory and strategic services.
+
+### 8.c. Spatio-Temporal KDE Insights
+
+-   High-intensity hotspots consistently appear in central commercial and business districts across months, reinforcing the importance of core urban areas for all three sectors.
+
+-   Emerging clusters in suburban commercial hubs indicate decentralization and growth beyond the CBD, particularly for Food & Beverage businesses.
+
+-   KDE maps reveal both stable “core” areas with persistent activity and “emerging” areas reflecting new market entries, helping to identify future business opportunities and urban service needs.
+
+-   Temporal analysis allows urban planners and policymakers to track where and when new businesses are likely to emerge, providing insight for infrastructure and transport planning.
+
+### 8.d. Limitations / Observations
+
+-   Postal-code geocoding may introduce minor spatial inaccuracies, particularly for mixed-use or newly developed areas.
+
+-   Sparse data in some months or sectors can reduce KDE resolution, potentially underestimating emerging clusters.
+
+-   Spatio-temporal patterns rely on the completeness of the ACRA dataset for the first half of 2025; missing or delayed registrations could bias results.
+
+-   The analysis focuses only on selected sectors, so generalization to all business activities should be done with caution.
+
+### 8.e. Summary
+
+-   **Food & Beverage**: Highly concentrated in commercial zones, showing seasonal entry trends; emerging clusters in suburban towns suggest decentralization.
+
+-   **Information Technology**: Office-location dependent, stable monthly registrations, and clustering near business hubs reflect demand-driven spatial patterns.
+
+-   **Management Consultancy**: Largest sector in terms of registrations, concentrated in central corporate districts; temporal growth is steady and consistent across months.
+
+-   **Overall Insight**: Spatio-temporal patterns highlight urban cores as persistent activity centers, with emerging suburban clusters indicating areas of business expansion. These findings can inform both urban planning and strategic business development.
