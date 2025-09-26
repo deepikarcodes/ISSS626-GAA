@@ -42,7 +42,10 @@ website:
           
           href: "Hands_on_Exercises/Hands_on_Ex05/Hands_on_Ex05a.html"
                     
-
+        - text: "5b: Local Measures of Spatial Autocorrelation"
+          
+          href: "Hands_on_Exercises/Hands_on_Ex05/Hands_on_Ex05b.html"
+                    
     - text: "In_Class_Exercises"
 
       menu:
