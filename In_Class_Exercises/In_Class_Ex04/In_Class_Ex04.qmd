@@ -31,7 +31,7 @@ pacman::p_load(sf, ggstatsplot, tmap, tidyverse, knitr, GWmodel)
 The following datasets will be used in this exercise:
 
 | **Data Set** | **Description** | **Format** |
-|------------------|-------------------------------------|------------------|
+|----|----|----|
 | **Hunan County Boundary Layer** | A geospatial dataset containing Hunan’s county boundaries. | ESRI Shapefile |
 | **Hunan_2012.csv** | A CSV file containing selected local development indicators for Hunan in 2012. | CSV |
 

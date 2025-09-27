@@ -61,6 +61,10 @@ website:
         - text: "4: Geographically Weighted Summary Statistics - GWmodel methods"
 
           href: "In_Class_Exercises/In_Class_Ex04/In_Class_Ex04.html"
+       
+        - text: "5: Global and Local Measures of Spatial Association: sfdep methods"
+
+          href: "In_Class_Exercises/In_Class_Ex05/In_Class_Ex05.html"          
           
           
     - text: "Take_Home_Exercises"

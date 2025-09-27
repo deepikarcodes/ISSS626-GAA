@@ -1,0 +1,49 @@
+---
+title: "In-class Exercise 5: Global and Local Measures of Spatial Association: sfdep methods"
+author: "Deepika Raja"
+date: "September 27, 2025"
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+# **1 Overview**
+
+In this in-class exercise, we will learn how to compute Global Measures of Spatial Autocorrelation (GMSA) by using **sfdep** package.
+
+-   sfdep creates an sf and tidyverse friendly interface to the package as well as introduces new functionality that is not present in spdep.
+
+-   sfdep utilizes list columns extensively to make this interface possible.
+
+# **2 The Data**
+
+We will use following geospatial datasets in this exercise:
+
+| Dataset | Description | Format |
+|----------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
+| *Hunan* | Hunan county boundary layer geospatial data | ESRI shapefile |
+| *Hunan_2012* | Contains selected Hunan’s local development indicators in 2012 | CSV file |
+
+# **3 Installing and launching the R packages**
+
+We will use following packages in this exercise:
+
+| Package | Description |
+|--------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [**sf**](https://r-spatial.github.io/sf/) | Provides functions to manage, processing, and manipulate **Simple Features**, a formal geospatial data standard that specifies a storage and access model of spatial geometries such as points, lines, and polygons. |
+| [sfdep](https://cran.r-project.org/web/packages/sfdep/) | Provides collection of functions to create spatial weights matrix objects from polygon ‘contiguities’, from point patterns by distance and tessellations. |
+| [**tidyverse**](https://www.tidyverse.org/) | Provides collection of functions for performing data science task such as importing, tidying, wrangling data and visualising data. |
+| [**tmap**](https://cran.r-project.org/web/packages/tmap/) | Provides functions for plotting cartographic quality static point patterns maps or interactive maps by using [leaflet](https://leafletjs.com/) API |
+
+```{r}
+pacman::p_load(sf, sfdep, tmap, tidyverse)
+```
+
+# **4 Data Import and Preparation**
+
+## **4.1 Loading the data**
+
+In this section, we will learn how to bring a geospatial data and its associated attribute table into R environment. The geospatial data is in ESRI shapefile format and the attribute table is in csv fomat.

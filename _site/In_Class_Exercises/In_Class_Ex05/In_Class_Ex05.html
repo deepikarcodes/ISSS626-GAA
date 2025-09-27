@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Deepika Raja">
+<meta name="dcterms.date" content="2025-09-27">
 
-<title>ISSS626-GAA</title>
+<title>In-class Exercise 5: Global and Local Measures of Spatial Association: sfdep methods</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,25 +22,59 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-html/quarto.js"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-bd8cb2610f6c2810c4bc87234a365cf8.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-bd8cb2610f6c2810c4bc87234a365cf8.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -68,7 +104,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="../../styles.css">
 </head>
 
 <body class="nav-fixed">
@@ -89,35 +125,35 @@ ul.task-list li input[type="checkbox"] {
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-hands_on_exercises">    
         <li>
-    <a class="dropdown-item" href="./Hands_on_Exercises/Hands_on_Ex01/Hands_on_Ex01a.html">
+    <a class="dropdown-item" href="../../Hands_on_Exercises/Hands_on_Ex01/Hands_on_Ex01a.html">
  <span class="dropdown-text">1a: Geospatial Data Wrangling with R</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./Hands_on_Exercises/Hands_on_Ex01/Hands_on_Ex01b.html">
+    <a class="dropdown-item" href="../../Hands_on_Exercises/Hands_on_Ex01/Hands_on_Ex01b.html">
  <span class="dropdown-text">1b: Thematic Mapping and GeoVisualisation with R</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./Hands_on_Exercises/Hands_on_Ex02/Hands_on_Ex02a.html">
+    <a class="dropdown-item" href="../../Hands_on_Exercises/Hands_on_Ex02/Hands_on_Ex02a.html">
  <span class="dropdown-text">2a: First-order Spatial Point Patterns Analysis Methods</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./Hands_on_Exercises/Hands_on_Ex02/Hands_on_Ex02b.html">
+    <a class="dropdown-item" href="../../Hands_on_Exercises/Hands_on_Ex02/Hands_on_Ex02b.html">
  <span class="dropdown-text">2b: 2nd Order Spatial Point Patterns Analysis Methods</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./Hands_on_Exercises/Hands_on_Ex03/Hands_on_Ex03.html">
+    <a class="dropdown-item" href="../../Hands_on_Exercises/Hands_on_Ex03/Hands_on_Ex03.html">
  <span class="dropdown-text">3: Spatio-Temporal Point Patterns Analysis</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./Hands_on_Exercises/Hands_on_Ex04/Hands_on_Ex04.html">
+    <a class="dropdown-item" href="../../Hands_on_Exercises/Hands_on_Ex04/Hands_on_Ex04.html">
  <span class="dropdown-text">4: Spatial Weights and Applications</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./Hands_on_Exercises/Hands_on_Ex05/Hands_on_Ex05a.html">
+    <a class="dropdown-item" href="../../Hands_on_Exercises/Hands_on_Ex05/Hands_on_Ex05a.html">
  <span class="dropdown-text">5a: Global Measures of Spatial Autocorrelation</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./Hands_on_Exercises/Hands_on_Ex05/Hands_on_Ex05b.html">
+    <a class="dropdown-item" href="../../Hands_on_Exercises/Hands_on_Ex05/Hands_on_Ex05b.html">
  <span class="dropdown-text">5b: Local Measures of Spatial Autocorrelation</span></a>
   </li>  
     </ul>
@@ -128,19 +164,19 @@ ul.task-list li input[type="checkbox"] {
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-in_class_exercises">    
         <li>
-    <a class="dropdown-item" href="./In_Class_Exercises/In_Class_Ex03/In_Class_Ex03a.html">
+    <a class="dropdown-item" href="../../In_Class_Exercises/In_Class_Ex03/In_Class_Ex03a.html">
  <span class="dropdown-text">3a: Interactive K-function</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./In_Class_Exercises/In_Class_Ex03/In_Class_Ex03b.html">
+    <a class="dropdown-item" href="../../In_Class_Exercises/In_Class_Ex03/In_Class_Ex03b.html">
  <span class="dropdown-text">3b: Working with Open Government Data</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./In_Class_Exercises/In_Class_Ex04/In_Class_Ex04.html">
+    <a class="dropdown-item" href="../../In_Class_Exercises/In_Class_Ex04/In_Class_Ex04.html">
  <span class="dropdown-text">4: Geographically Weighted Summary Statistics - GWmodel methods</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./In_Class_Exercises/In_Class_Ex05/In_Class_Ex05.html">
+    <a class="dropdown-item" href="../../In_Class_Exercises/In_Class_Ex05/In_Class_Ex05.html">
  <span class="dropdown-text">5: Global and Local Measures of Spatial Association: sfdep methods</span></a>
   </li>  
     </ul>
@@ -151,7 +187,7 @@ ul.task-list li input[type="checkbox"] {
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-take_home_exercises">    
         <li>
-    <a class="dropdown-item" href="./Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html">
+    <a class="dropdown-item" href="../../Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html">
  <span class="dropdown-text">1: Geospatial Analytics for Public Good</span></a>
   </li>  
     </ul>
@@ -159,11 +195,11 @@ ul.task-list li input[type="checkbox"] {
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
+    <a class="nav-link" href="../../index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
+    <a class="nav-link" href="../../about.html"> 
 <span class="menu-text">About</span></a>
   </li>  
 </ul>
@@ -177,23 +213,53 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview"><strong>1 Overview</strong></a></li>
+  <li><a href="#the-data" id="toc-the-data" class="nav-link" data-scroll-target="#the-data"><strong>2 The Data</strong></a></li>
+  <li><a href="#installing-and-launching-the-r-packages" id="toc-installing-and-launching-the-r-packages" class="nav-link" data-scroll-target="#installing-and-launching-the-r-packages"><strong>3 Installing and launching the R packages</strong></a></li>
+  <li><a href="#data-import-and-preparation" id="toc-data-import-and-preparation" class="nav-link" data-scroll-target="#data-import-and-preparation"><strong>4 Data Import and Preparation</strong></a>
+  <ul class="collapse">
+  <li><a href="#loading-the-data" id="toc-loading-the-data" class="nav-link" data-scroll-target="#loading-the-data"><strong>4.1 Loading the data</strong></a></li>
+  </ul></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">ISSS626-GAA</h1>
+<h1 class="title">In-class Exercise 5: Global and Local Measures of Spatial Association: sfdep methods</h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Deepika Raja </p>
+          </div>
+  </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 27, 2025</p>
+    </div>
+  </div>
   
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">September 27, 2025</p>
+    </div>
+  </div>
     
   </div>
   
@@ -202,9 +268,86 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Welcome to <strong>ISSS626 Geospatial Analytics and Applications</strong>. In this website, you will find my coursework prepared for this course.</p>
+<section id="overview" class="level1">
+<h1><strong>1 Overview</strong></h1>
+<p>In this in-class exercise, we will learn how to compute Global Measures of Spatial Autocorrelation (GMSA) by using <strong>sfdep</strong> package.</p>
+<ul>
+<li><p>sfdep creates an sf and tidyverse friendly interface to the package as well as introduces new functionality that is not present in spdep.</p></li>
+<li><p>sfdep utilizes list columns extensively to make this interface possible.</p></li>
+</ul>
+</section>
+<section id="the-data" class="level1">
+<h1><strong>2 The Data</strong></h1>
+<p>We will use following geospatial datasets in this exercise:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 64%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dataset</th>
+<th>Description</th>
+<th>Format</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><em>Hunan</em></td>
+<td>Hunan county boundary layer geospatial data</td>
+<td>ESRI shapefile</td>
+</tr>
+<tr class="even">
+<td><em>Hunan_2012</em></td>
+<td>Contains selected Hunan’s local development indicators in 2012</td>
+<td>CSV file</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="installing-and-launching-the-r-packages" class="level1">
+<h1><strong>3 Installing and launching the R packages</strong></h1>
+<p>We will use following packages in this exercise:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Package</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://r-spatial.github.io/sf/"><strong>sf</strong></a></td>
+<td>Provides functions to manage, processing, and manipulate <strong>Simple Features</strong>, a formal geospatial data standard that specifies a storage and access model of spatial geometries such as points, lines, and polygons.</td>
+</tr>
+<tr class="even">
+<td><a href="https://cran.r-project.org/web/packages/sfdep/">sfdep</a></td>
+<td>Provides collection of functions to create spatial weights matrix objects from polygon ‘contiguities’, from point patterns by distance and tessellations.</td>
+</tr>
+<tr class="odd">
+<td><a href="https://www.tidyverse.org/"><strong>tidyverse</strong></a></td>
+<td>Provides collection of functions for performing data science task such as importing, tidying, wrangling data and visualising data.</td>
+</tr>
+<tr class="even">
+<td><a href="https://cran.r-project.org/web/packages/tmap/"><strong>tmap</strong></a></td>
+<td>Provides functions for plotting cartographic quality static point patterns maps or interactive maps by using <a href="https://leafletjs.com/">leaflet</a> API</td>
+</tr>
+</tbody>
+</table>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, sfdep, tmap, tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="data-import-and-preparation" class="level1">
+<h1><strong>4 Data Import and Preparation</strong></h1>
+<section id="loading-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="loading-the-data"><strong>4.1 Loading the data</strong></h2>
+<p>In this section, we will learn how to bring a geospatial data and its associated attribute table into R environment. The geospatial data is in ESRI shapefile format and the attribute table is in csv fomat.</p>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
