@@ -72,7 +72,11 @@ website:
         - text: "5: Global and Local Measures of Spatial Association: sfdep methods"
 
           href: "In_Class_Exercises/In_Class_Ex05/In_Class_Ex05.html"          
-          
+
+        - text: "6: Emerging Hot Spot Anlaysis"
+
+          href: "In_Class_Exercises/In_Class_Ex06/In_Class_Ex06.html"          
+                    
           
     - text: "Take_Home_Exercises"
 
