@@ -441,38 +441,3 @@ Notice the mean and standard deviation of the Z-score standardised clustering va
 **Note:** [*describe()*](https://www.rdocumentation.org/packages/Hmisc/versions/4.4-0/topics/describe) of [**psych**](https://cran.r-project.org/web/packages/psych/index.html) package is used here instead of *summary()* of Base R because the earlier provides standard deviation.
 
 ***Warning: Z-score standardisation method should only be used if we would assume all variables come from some normal distribution.***
-
-### **12.7.5 Visualising the standardised clustering variables**
-
-Beside reviewing the summary statistics of the standardised clustering variables, it is also a good practice to visualise their distribution graphical.
-
-The code chunk below plot the scaled *Radio_PR* field.\
-
-```{r}
-r <- ggplot(data=ict_derived, 
-             aes(x= `RADIO_PR`)) +
-  geom_histogram(bins=20, 
-                 color="black", 
-                 fill="light blue") +
-  ggtitle("Raw values without standardisation")
-
-shan_sf_s_df <- as.data.frame(shan_ict.std)
-s <- ggplot(data=shan_sf_s_df, 
-       aes(x=`RADIO_PR`)) +
-  geom_histogram(bins=20, 
-                 color="black", 
-                 fill="light blue") +
-  ggtitle("Min-Max Standardisation")
-
-shan_ict_z_df <- as.data.frame(shan_ict.z)
-z <- ggplot(data=shan_ict_z_df, 
-       aes(x=`RADIO_PR`)) +
-  geom_histogram(bins=20, 
-                 color="black", 
-                 fill="light blue") +
-  ggtitle("Z-score Standardisation")
-
-ggarrange(r, s, z,
-          ncol = 3,
-          nrow = 1)
-```

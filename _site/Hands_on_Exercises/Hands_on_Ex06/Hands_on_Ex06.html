@@ -243,6 +243,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#a.-eda-using-statistical-graphics" id="toc-a.-eda-using-statistical-graphics" class="nav-link" data-scroll-target="#a.-eda-using-statistical-graphics"><strong>5.a. EDA using statistical graphics</strong></a></li>
   <li><a href="#b.-eda-using-choropleth-map" id="toc-b.-eda-using-choropleth-map" class="nav-link" data-scroll-target="#b.-eda-using-choropleth-map"><strong>5.b. EDA using choropleth map</strong></a></li>
   </ul></li>
+  <li><a href="#correlation-analysis" id="toc-correlation-analysis" class="nav-link" data-scroll-target="#correlation-analysis"><strong>6. Correlation Analysis</strong></a></li>
+  <li><a href="#hierarchy-cluster-analysis" id="toc-hierarchy-cluster-analysis" class="nav-link" data-scroll-target="#hierarchy-cluster-analysis"><strong>7. Hierarchy Cluster Analysis</strong></a>
+  <ul class="collapse">
+  <li><a href="#a.-extracting-clustering-variables" id="toc-a.-extracting-clustering-variables" class="nav-link" data-scroll-target="#a.-extracting-clustering-variables"><strong>7.a. Extracting clustering variables</strong></a></li>
+  <li><a href="#b.-data-standardisation" id="toc-b.-data-standardisation" class="nav-link" data-scroll-target="#b.-data-standardisation"><strong>7.b. Data Standardisation</strong></a></li>
+  <li><a href="#c.-min-max-standardisation" id="toc-c.-min-max-standardisation" class="nav-link" data-scroll-target="#c.-min-max-standardisation"><strong>7.c. Min-Max standardisation</strong></a></li>
+  <li><a href="#z-score-standardisation" id="toc-z-score-standardisation" class="nav-link" data-scroll-target="#z-score-standardisation"><strong>12.7.4 Z-score standardisation</strong></a></li>
+  </ul></li>
   </ul></li>
   </ul>
 </nav>
@@ -276,7 +284,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">October 7, 2025</p>
+      <p class="date-modified">October 16, 2025</p>
     </div>
   </div>
     
@@ -711,9 +719,254 @@ $ geometry &lt;MULTIPOLYGON [°]&gt; MULTIPOLYGON (((96.96001 23..., MULTIPOLYGO
 </div>
 </div>
 </div>
-
-
+<p>Can you identify the differences?<br>
+Answer:</p>
+<p>Left Map — <code>TT_HOUSEHOLDS</code></p>
+<ul>
+<li><p>Represents <strong>total number of households</strong> in each township.</p></li>
+<li><p>Darker brown areas have <strong>more households</strong>, lighter areas have <strong>fewer households</strong>.</p></li>
+<li><p>You can see high household counts concentrated in the <strong>western and central regions</strong>.</p>
+<p>Right Map — <code>RADIO_PR</code></p></li>
+<li><p>Represents <strong>radio penetration rate</strong> (or radio ownership per population).</p></li>
+<li><p>Darker blue areas show <strong>higher radio penetration</strong>, lighter ones show <strong>lower penetration</strong>.</p></li>
+<li><p>Here, high values are more noticeable in the <strong>eastern and some northern townships</strong>, which differ from the household distribution.</p></li>
+</ul>
 </section>
+</section>
+</section>
+<section id="correlation-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="correlation-analysis"><strong>6. Correlation Analysis</strong></h2>
+<p>Before we perform cluster analysis, it is important for us to ensure that the cluster variables are not highly correlated.</p>
+<p>In this section, you will learn how to use <a href="https://cran.r-project.org/web/packages/corrplot/corrplot.pdf"><em>corrplot.mixed()</em></a> function of <a href="https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html"><strong>corrplot</strong></a> package to visualise and analyse the correlation of the input variables.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>cluster_vars.cor <span class="ot">=</span> <span class="fu">cor</span>(ict_derived[,<span class="dv">12</span><span class="sc">:</span><span class="dv">17</span>])</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">corrplot.mixed</span>(cluster_vars.cor,</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">lower =</span> <span class="st">"ellipse"</span>, </span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>               <span class="at">upper =</span> <span class="st">"number"</span>,</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">tl.pos =</span> <span class="st">"lt"</span>,</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>               <span class="at">diag =</span> <span class="st">"l"</span>,</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>               <span class="at">tl.col =</span> <span class="st">"black"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Hands_on_Ex06_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The correlation plot above shows that COMPUTER_PR and INTERNET_PR are highly correlated. This suggest that only one of them should be used in the cluster analysis instead of both.</p>
+</section>
+<section id="hierarchy-cluster-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="hierarchy-cluster-analysis"><strong>7. Hierarchy Cluster Analysis</strong></h2>
+<p>In this section, you will learn how to perform hierarchical cluster analysis. The analysis consists of four major steps:</p>
+<section id="a.-extracting-clustering-variables" class="level3">
+<h3 class="anchored" data-anchor-id="a.-extracting-clustering-variables"><strong>7.a. Extracting clustering variables</strong></h3>
+<p>The code chunk below will be used to extract the clustering variables from the <em>shan_sf</em> simple feature object into data.frame.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>cluster_vars <span class="ot">&lt;-</span> shan_sf <span class="sc">%&gt;%</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_set_geometry</span>(<span class="cn">NULL</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">"TS.x"</span>, <span class="st">"RADIO_PR"</span>, <span class="st">"TV_PR"</span>, <span class="st">"LLPHONE_PR"</span>, <span class="st">"MPHONE_PR"</span>, <span class="st">"COMPUTER_PR"</span>)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(cluster_vars,<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        TS.x RADIO_PR    TV_PR LLPHONE_PR MPHONE_PR COMPUTER_PR
+1    Mongmit 286.1852 554.1313   35.30618  260.6944    12.15939
+2    Pindaya 417.4647 505.1300   19.83584  162.3917    12.88190
+3    Ywangan 484.5215 260.5734   11.93591  120.2856     4.41465
+4   Pinlaung 231.6499 541.7189   28.54454  249.4903    13.76255
+5     Mabein 449.4903 708.6423   72.75255  392.6089    16.45042
+6      Kalaw 280.7624 611.6204   42.06478  408.7951    29.63160
+7      Pekon 318.6118 535.8494   39.83270  214.8476    18.97032
+8   Lawksawk 387.1017 630.0035   31.51366  320.5686    21.76677
+9  Nawnghkio 349.3359 547.9456   38.44960  323.0201    15.76465
+10   Kyaukme 210.9548 601.1773   39.58267  372.4930    30.94709</code></pre>
+</div>
+</div>
+<p>Notice that the final clustering variables list does not include variable INTERNET_PR because it is highly correlated with variable COMPUTER_PR.</p>
+<p>Next, we need to change the rows by township name instead of row number by using the code chunk below:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">row.names</span>(cluster_vars) <span class="ot">&lt;-</span> cluster_vars<span class="sc">$</span><span class="st">"TS.x"</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(cluster_vars,<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               TS.x RADIO_PR    TV_PR LLPHONE_PR MPHONE_PR COMPUTER_PR
+Mongmit     Mongmit 286.1852 554.1313   35.30618  260.6944    12.15939
+Pindaya     Pindaya 417.4647 505.1300   19.83584  162.3917    12.88190
+Ywangan     Ywangan 484.5215 260.5734   11.93591  120.2856     4.41465
+Pinlaung   Pinlaung 231.6499 541.7189   28.54454  249.4903    13.76255
+Mabein       Mabein 449.4903 708.6423   72.75255  392.6089    16.45042
+Kalaw         Kalaw 280.7624 611.6204   42.06478  408.7951    29.63160
+Pekon         Pekon 318.6118 535.8494   39.83270  214.8476    18.97032
+Lawksawk   Lawksawk 387.1017 630.0035   31.51366  320.5686    21.76677
+Nawnghkio Nawnghkio 349.3359 547.9456   38.44960  323.0201    15.76465
+Kyaukme     Kyaukme 210.9548 601.1773   39.58267  372.4930    30.94709</code></pre>
+</div>
+</div>
+<p>Notice that the row number has been replaced into the township name.</p>
+<p>Now, we will delete the TS.x field by using the code chunk below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>shan_ict <span class="ot">&lt;-</span> <span class="fu">select</span>(cluster_vars, <span class="fu">c</span>(<span class="dv">2</span><span class="sc">:</span><span class="dv">6</span>))</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(shan_ict, <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          RADIO_PR    TV_PR LLPHONE_PR MPHONE_PR COMPUTER_PR
+Mongmit   286.1852 554.1313   35.30618  260.6944    12.15939
+Pindaya   417.4647 505.1300   19.83584  162.3917    12.88190
+Ywangan   484.5215 260.5734   11.93591  120.2856     4.41465
+Pinlaung  231.6499 541.7189   28.54454  249.4903    13.76255
+Mabein    449.4903 708.6423   72.75255  392.6089    16.45042
+Kalaw     280.7624 611.6204   42.06478  408.7951    29.63160
+Pekon     318.6118 535.8494   39.83270  214.8476    18.97032
+Lawksawk  387.1017 630.0035   31.51366  320.5686    21.76677
+Nawnghkio 349.3359 547.9456   38.44960  323.0201    15.76465
+Kyaukme   210.9548 601.1773   39.58267  372.4930    30.94709</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>shan_ict <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"data/rds/shan_sf.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="b.-data-standardisation" class="level3">
+<h3 class="anchored" data-anchor-id="b.-data-standardisation"><strong>7.b. Data Standardisation</strong></h3>
+<p>In general, multiple variables will be used in cluster analysis. It is not unusual their values range are different. In order to avoid the cluster analysis result is baised to clustering variables with large values, it is useful to standardise the input variables before performing cluster analysis.</p>
+</section>
+<section id="c.-min-max-standardisation" class="level3">
+<h3 class="anchored" data-anchor-id="c.-min-max-standardisation"><strong>7.c. Min-Max standardisation</strong></h3>
+<p>In the code chunk below, <em>normalize()</em> of <a href="https://cran.r-project.org/web/packages/heatmaply/index.html"><em>heatmaply</em></a> package is used to stadardisation the clustering variables by using Min-Max method. The <em>summary()</em> is then used to display the summary statistics of the standardised clustering variables.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove geometry column</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>shan_df <span class="ot">&lt;-</span> <span class="fu">st_drop_geometry</span>(shan_sf)</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Normalize numeric columns between 0 and 1</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>shan_df.std <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">lapply</span>(shan_df, <span class="cf">function</span>(x) {</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.numeric</span>(x)) {</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>    (x <span class="sc">-</span> <span class="fu">min</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">/</span> (<span class="fu">max</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">-</span> <span class="fu">min</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>    x</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>}))</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Reattach geometry to the normalized data</span></span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>shan_sf.std <span class="ot">&lt;-</span> <span class="fu">st_bind_cols</span>(shan_sf[<span class="st">"geometry"</span>], shan_df.std)</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a><span class="co"># View summary of the normalized dataset</span></span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(shan_sf.std)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      ST              ST_PCODE             DT.x            DT_PCODE.x       
+ Length:55          Length:55          Length:55          Length:55         
+ Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                                                                            
+                                                                            
+                                                                            
+     TS.x             TS_PCODE          DT_PCODE.y            DT.y          
+ Length:55          Length:55          Length:55          Length:55         
+ Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                                                                            
+                                                                            
+                                                                            
+     TS.y           TT_HOUSEHOLDS         RADIO               TV         
+ Length:55          Min.   :0.00000   Min.   :0.00000   Min.   :0.00000  
+ Class :character   1st Qu.:0.06802   1st Qu.:0.03811   1st Qu.:0.04892  
+ Mode  :character   Median :0.13075   Median :0.07924   Median :0.08740  
+                    Mean   :0.18983   Mean   :0.14545   Mean   :0.15333  
+                    3rd Qu.:0.25418   3rd Qu.:0.20216   3rd Qu.:0.21373  
+                    Max.   :1.00000   Max.   :1.00000   Max.   :1.00000  
+    LLPHONE           MPHONE           COMPUTER          INTERNET       
+ Min.   :0.0000   Min.   :0.00000   Min.   :0.00000   Min.   :0.000000  
+ 1st Qu.:0.0367   1st Qu.:0.03906   1st Qu.:0.01511   1st Qu.:0.008215  
+ Median :0.1005   Median :0.07056   Median :0.03351   Median :0.031629  
+ Mean   :0.1355   Mean   :0.13081   Mean   :0.08310   Mean   :0.077240  
+ 3rd Qu.:0.1582   3rd Qu.:0.14545   3rd Qu.:0.07285   3rd Qu.:0.063925  
+ Max.   :1.0000   Max.   :1.00000   Max.   :1.00000   Max.   :1.000000  
+    RADIO_PR          TV_PR          LLPHONE_PR       MPHONE_PR     
+ Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Min.   :0.0000  
+ 1st Qu.:0.2544   1st Qu.:0.4600   1st Qu.:0.1123   1st Qu.:0.2199  
+ Median :0.4097   Median :0.5523   Median :0.1948   Median :0.3846  
+ Mean   :0.4199   Mean   :0.5416   Mean   :0.2703   Mean   :0.3972  
+ 3rd Qu.:0.5330   3rd Qu.:0.6750   3rd Qu.:0.3746   3rd Qu.:0.5608  
+ Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :1.0000  
+  COMPUTER_PR       INTERNET_PR               geometry 
+ Min.   :0.00000   Min.   :0.00000   MULTIPOLYGON :55  
+ 1st Qu.:0.09598   1st Qu.:0.06478   epsg:4326    : 0  
+ Median :0.17607   Median :0.18631   +proj=long...: 0  
+ Mean   :0.23692   Mean   :0.25313                     
+ 3rd Qu.:0.29868   3rd Qu.:0.34410                     
+ Max.   :1.00000   Max.   :1.00000                     </code></pre>
+</div>
+</div>
+<p>Notice that the values range of the Min-max standardised clustering variables are 0-1 now.</p>
+</section>
+<section id="z-score-standardisation" class="level3">
+<h3 class="anchored" data-anchor-id="z-score-standardisation"><strong>12.7.4 Z-score standardisation</strong></h3>
+<p>Z-score standardisation can be performed easily by using <a href="https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/scale"><em>scale()</em></a> of Base R. The code chunk below will be used to stadardisation the clustering variables by using Z-score method.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Drop geometry to avoid errors</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>shan_df <span class="ot">&lt;-</span> <span class="fu">st_drop_geometry</span>(shan_sf)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply z-score standardization only to numeric columns</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>shan_df.z <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">lapply</span>(shan_df, <span class="cf">function</span>(x) {</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.numeric</span>(x)) <span class="fu">scale</span>(x) <span class="cf">else</span> x</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>}))</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Reattach geometry to the standardized data</span></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>shan_sf.z <span class="ot">&lt;-</span> <span class="fu">st_bind_cols</span>(shan_sf[<span class="st">"geometry"</span>], shan_df.z)</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a><span class="co"># View summary statistics</span></span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(psych)</span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a><span class="fu">describe</span>(shan_df.z)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              vars  n  mean    sd median trimmed   mad   min   max range  skew
+ST*              1 55  2.20  0.73   2.00    2.24  1.48  1.00  3.00  2.00 -0.31
+ST_PCODE*        2 55  1.80  0.73   2.00    1.76  1.48  1.00  3.00  2.00  0.31
+DT.x*            3 55  7.16  4.08   7.00    7.16  5.93  1.00 13.00 12.00  0.15
+DT_PCODE.x*      4 55  5.64  3.92   5.00    5.38  4.45  1.00 13.00 12.00  0.42
+TS.x*            5 55 28.00 16.02  28.00   28.00 20.76  1.00 55.00 54.00  0.00
+TS_PCODE*        6 55 28.00 16.02  28.00   28.00 20.76  1.00 55.00 54.00  0.00
+DT_PCODE.y*      7 55  5.75  4.04   5.00    5.47  4.45  1.00 14.00 13.00  0.45
+DT.y*            8 55  7.80  4.23   8.00    7.82  5.93  1.00 14.00 13.00  0.12
+TS.y*            9 55 28.00 16.02  28.00   28.00 20.76  1.00 55.00 54.00  0.00
+TT_HOUSEHOLDS   10 55  0.00  1.00  -0.31   -0.16  0.59 -1.00  4.29  5.29  2.08
+RADIO           11 55  0.00  1.00  -0.39   -0.17  0.41 -0.85  4.98  5.83  2.59
+TV              12 55  0.00  1.00  -0.38   -0.17  0.46 -0.88  4.85  5.72  2.69
+LLPHONE         13 55  0.00  1.00  -0.21   -0.18  0.56 -0.81  5.16  5.96  3.09
+MPHONE          14 55  0.00  1.00  -0.35   -0.20  0.34 -0.76  5.07  5.83  2.97
+COMPUTER        15 55  0.00  1.00  -0.30   -0.24  0.19 -0.51  5.62  6.13  3.94
+INTERNET        16 55  0.00  1.00  -0.28   -0.22  0.25 -0.48  5.74  6.23  4.20
+RADIO_PR        17 55  0.00  1.00  -0.04   -0.06  0.94 -1.85  2.55  4.40  0.48
+TV_PR           18 55  0.00  1.00   0.05    0.04  0.78 -2.47  2.09  4.56 -0.38
+LLPHONE_PR      19 55  0.00  1.00  -0.33   -0.15  0.68 -1.19  3.20  4.39  1.37
+MPHONE_PR       20 55  0.00  1.00  -0.05   -0.06  1.01 -1.58  2.40  3.98  0.48
+COMPUTER_PR     21 55  0.00  1.00  -0.26   -0.18  0.64 -1.03  3.31  4.34  1.80
+INTERNET_PR     22 55  0.00  1.00  -0.27   -0.16  0.81 -1.04  3.06  4.09  1.32
+              kurtosis   se
+ST*              -1.12 0.10
+ST_PCODE*        -1.12 0.10
+DT.x*            -1.40 0.55
+DT_PCODE.x*      -1.19 0.53
+TS.x*            -1.27 2.16
+TS_PCODE*        -1.27 2.16
+DT_PCODE.y*      -1.11 0.55
+DT.y*            -1.28 0.57
+TS.y*            -1.27 2.16
+TT_HOUSEHOLDS     5.35 0.13
+RADIO             9.06 0.13
+TV                9.13 0.13
+LLPHONE          11.76 0.13
+MPHONE           10.69 0.13
+COMPUTER         17.15 0.13
+INTERNET         19.34 0.13
+RADIO_PR         -0.27 0.13
+TV_PR            -0.23 0.13
+LLPHONE_PR        1.49 0.13
+MPHONE_PR        -0.34 0.13
+COMPUTER_PR       2.96 0.13
+INTERNET_PR       1.24 0.13</code></pre>
+</div>
+</div>
+<p>Notice the mean and standard deviation of the Z-score standardised clustering variables are 0 and 1 respectively.</p>
+<p><strong>Note:</strong> <a href="https://www.rdocumentation.org/packages/Hmisc/versions/4.4-0/topics/describe"><em>describe()</em></a> of <a href="https://cran.r-project.org/web/packages/psych/index.html"><strong>psych</strong></a> package is used here instead of <em>summary()</em> of Base R because the earlier provides standard deviation.</p>
+<p><strong><em>Warning: Z-score standardisation method should only be used if we would assume all variables come from some normal distribution.</em></strong></p>
+
+
 </section>
 </section>
 </section>
