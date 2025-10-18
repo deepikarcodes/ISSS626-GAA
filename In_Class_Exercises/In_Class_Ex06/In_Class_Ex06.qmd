@@ -2,4 +2,3 @@
 title: "In_Class_Ex06"
 format: html
 ---
-
