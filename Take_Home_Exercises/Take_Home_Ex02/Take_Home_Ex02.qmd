@@ -815,6 +815,23 @@ cat("- 62 Low-High spatial outliers\n")
 kable(lmsa_summary)
 ```
 
+```{r}
+#| fig-width: 12
+#| fig-height: 10
+
+# Simple LISA cluster visualization
+lisa_sig_morning <- hexagon_trips_filtered %>% filter(Morning_Moran_P < 0.05)
+
+tm_shape(mpsz) +
+  tm_polygons(alpha = 0.2) +
+tm_shape(lisa_sig_morning) +
+  tm_fill("Morning_LISA_Cluster", 
+          palette = c("High-High" = "red", "Low-Low" = "blue", 
+                     "High-Low" = "pink", "Low-High" = "lightblue"),
+          title = "LISA Cluster") +
+  tm_layout(main.title = "Local Moran's I - Weekday Morning Peak (p < 0.05)")
+```
+
 # 8. Emerging Hot Spot Analysis (EHSA)
 
 ## 8.a. EHSA Context and Limitations
