@@ -89,6 +89,10 @@ website:
         - text: "1: Geospatial Analytics for Public Good"
 
           href: "Take_Home_Exercises/Take_Home_Ex01/Take_Home_Ex01.html"
+          
+        - text: "2: Urban Bus Mobility Patterns in Singapore"
+
+          href: "Take_Home_Exercises/Take_Home_Ex02/Take_Home_Ex02.html"          
                     
           
           
