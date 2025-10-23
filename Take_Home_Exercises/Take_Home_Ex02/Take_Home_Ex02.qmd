@@ -965,6 +965,36 @@ The analysis successfully identifies distinct spatial patterns in bus passenger 
 
 This comprehensive spatial analysis demonstrates the value of advanced geospatial statistics in transforming bus passenger data into actionable intelligence for creating more responsive, efficient, and sustainable urban mobility systems in Singapore.
 
+```{r}
+# 12. Data Export for Submission
+
+#| code-summary: Save key analysis objects as RDS files
+#| output: false
+
+cat("SAVING ANALYSIS OBJECTS AS RDS FILES\n")
+cat("=======================================\n")
+
+# Save all key analysis objects as RDS files
+saveRDS(mpsz, "mpsz_analysis.rds")
+saveRDS(BusStop, "busstop_analysis.rds") 
+saveRDS(hexagon, "hexagon_grid.rds")
+saveRDS(hexagon_trips, "hexagon_trips_data.rds")
+saveRDS(hexagon_trips_filtered, "hexagon_trips_filtered.rds")
+saveRDS(gi_hotspots, "gi_hotspots_results.rds")
+
+cat("RDS FILES SAVED:\n")
+cat("- mpsz_analysis.rds\n")
+cat("- busstop_analysis.rds\n") 
+cat("- hexagon_grid.rds\n")
+cat("- hexagon_trips_data.rds\n")
+cat("- hexagon_trips_filtered.rds\n")
+cat("- gi_hotspots_results.rds\n\n")
+
+cat("SUBMISSION READY:\n")
+cat("• Zip this entire project folder (including all .rds files and .qmd)\n")
+cat("• Submit the zip file to your professor\n")
+```
+
 # 11. References
 
 ```{r}
