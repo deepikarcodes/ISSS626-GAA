@@ -3,22 +3,19 @@
 .Rhistory
 .RData
 .Ruserdata
-
 # System files
 .DS_Store
-
 # Authentication files
 .httr-oauth
-
 # Quarto cache and outputs
 .quarto/
-
 # Data folders (raw data should not be pushed)
 data/
-
 # Logs and temporary files
 *.log
 *.tmp
-
 /.quarto/
 .quarto
+.RDataTmp2
+.RDataTmp1
+.RDataTmp
