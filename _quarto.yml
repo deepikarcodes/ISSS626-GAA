@@ -54,7 +54,11 @@ website:
           
           href: "Hands_on_Exercises/Hands_on_Ex07/Hands_on_Ex07.html"
                          
-                    
+        - text: "8: Geographically Weighted Predictive Modelling"
+          
+          href: "Hands_on_Exercises/Hands_on_Ex08/Hands_on_Ex08.html"                    
+
+
     - text: "In_Class_Exercises"
 
       menu:
