@@ -50,8 +50,10 @@ website:
           
           href: "Hands_on_Exercises/Hands_on_Ex06/Hands_on_Ex06.html"
                     
+        - text: "7: Calibrating Hedonic Pricing Model for Private Highrise Property with GWR Method"
           
-          
+          href: "Hands_on_Exercises/Hands_on_Ex07/Hands_on_Ex07.html"
+                         
                     
     - text: "In_Class_Exercises"
 
