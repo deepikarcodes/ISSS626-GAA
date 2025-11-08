@@ -1,0 +1,172 @@
+---
+title: "In-class Exercise 9"
+author: "Deepika Raja"
+date: "November 08, 2025"
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+
+# Getting Started
+```{r}
+pacman::p_load(SpatialAcc, sf, tidyverse, 
+               tmap, ggstatsplot)
+```
+
+# Count Number of Points within a Distance
+ELDERCARE is in shapefile format, the code chunk below will be used:
+
+```{r}
+eldercare <- st_read(dsn = "data/geospatial",
+                     layer = "ELDERCARE") %>%
+  st_transform(crs = 3414)
+```
+
+
+
+# Importing Data
+```{r}
+mpsz <- st_read(dsn = "data/geospatial",
+                layer = "MP14_SUBZONE_NO_SEA_PL") %>%
+  st_transform(crs = 3414)
+
+hexagons <- st_read(dsn = "data/geospatial",
+                   layer = "hexagons") %>%
+  st_transform(crs = 3414)
+
+eldercare <- st_read(dsn = "data/geospatial",
+                     layer = "ELDERCARE") %>%
+  st_transform(csr = 3414)
+```
+
+```{r}
+ODMatrix <- read_csv("data/aspatial/OD_Matrix.csv", 
+                     skip = 0)
+```
+
+# Data cleaning and Updating Attributes
+
+```{r}
+eldercare <- eldercare %>%
+  select(fid, ADDRESSPOS) %>%
+  mutate(capacity = 100)
+```
+
+```{r}
+hexagons <- hexagons %>%
+  select(fid) %>%
+  mutate(demand = 100)
+```
+
+```{r}
+distmat <- ODMatrix %>%
+  select(origin_id, destination_id, total_cost) %>%
+  spread(destination_id, total_cost)%>%
+  select(c(-c('origin_id')))
+```
+
+```{r}
+distmat_km <- as.matrix(distmat/1000)
+
+```
+
+# Computing Handsen’s Accessibility
+```{r}
+acc_Hansen <- data.frame(ac(hexagons$demand,
+                            eldercare$capacity,
+                            distmat_km, 
+                            #d0 = 50,
+                            power = 2, 
+                            family = "Hansen"))
+```
+
+```{r}
+colnames(acc_Hansen) <- "accHansen"
+
+acc_Hansen <- as_tibble(acc_Hansen)
+
+hexagon_Hansen <- bind_cols(hexagons, acc_Hansen)
+```
+
+```{r}
+acc_Hansen <- data.frame(ac(hexagons$demand,
+                            eldercare$capacity,
+                            distmat_km, 
+                            #d0 = 50,
+                            power = 0.5, 
+                            family = "Hansen"))
+
+colnames(acc_Hansen) <- "accHansen"
+acc_Hansen <- as_tibble(acc_Hansen)
+hexagon_Hansen <- bind_cols(hexagons, acc_Hansen)
+```
+
+# Visualising Accessibility
+```{r}
+# ensure packages
+if (!requireNamespace("ggplot2", quietly = TRUE)) install.packages("ggplot2")
+if (!requireNamespace("ggspatial", quietly = TRUE)) install.packages("ggspatial")
+if (!requireNamespace("scales", quietly = TRUE)) install.packages("scales") # for alpha()
+
+library(ggplot2)
+library(ggspatial)
+library(scales)
+
+# ---- ensure map extent (mapex) exists ----
+# Prefer hexagon_Hansen bbox; fall back to hexagons or eldercare if needed
+if (!exists("mapex")) {
+  if (exists("hexagon_Hansen")) {
+    mapex <- sf::st_bbox(hexagon_Hansen)
+  } else if (exists("hexagons")) {
+    mapex <- sf::st_bbox(hexagons)
+  } else if (exists("eldercare")) {
+    mapex <- sf::st_bbox(eldercare)
+  } else {
+    stop("No object found to derive map extent. Provide hexagon_Hansen, hexagons, or eldercare.")
+  }
+  # expand bbox by 5% so edges are not clipped
+  xpad <- (mapex["xmax"] - mapex["xmin"]) * 0.05
+  ypad <- (mapex["ymax"] - mapex["ymin"]) * 0.05
+  mapex["xmin"] <- mapex["xmin"] - xpad
+  mapex["xmax"] <- mapex["xmax"] + xpad
+  mapex["ymin"] <- mapex["ymin"] - ypad
+  mapex["ymax"] <- mapex["ymax"] + ypad
+}
+
+# convert bbox values to numeric limits
+xmin <- as.numeric(mapex["xmin"])
+xmax <- as.numeric(mapex["xmax"])
+ymin <- as.numeric(mapex["ymin"])
+ymax <- as.numeric(mapex["ymax"])
+
+# ---- plot ----
+ggplot() +
+  # hexagon fill (use hexagon_Hansen if available)
+  geom_sf(
+    data = if (exists("hexagon_Hansen")) hexagon_Hansen else hexagons,
+    aes(geometry = geometry, fill = accHansen),
+    colour = "black", size = 0.2
+  ) +
+  # eldercare points if available
+  { if (exists("eldercare")) geom_sf(data = eldercare, aes(geometry = geometry),
+                                     size = 0.6, shape = 21, fill = "white") } +
+  coord_sf(xlim = c(xmin, xmax), ylim = c(ymin, ymax), expand = FALSE) +
+  scale_fill_viridis_c(option = "plasma", direction = -1,
+                       name = "Accessibility\n(Hansen)", na.value = "grey80") +
+  annotation_scale(location = "bl", width_hint = 0.25) +
+  annotation_north_arrow(location = "tr", which_north = "true",
+                         style = ggspatial::north_arrow_fancy_orienteering()) +
+  labs(title = "Accessibility to eldercare: Hansen method") +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = c(0.92, 0.8),
+    legend.background = element_rect(fill = alpha("white", 0.6), colour = NA),
+    panel.grid.major = element_line(size = 0.1, colour = "grey90")
+  )
+
+```
+

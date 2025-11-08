@@ -56,7 +56,12 @@ website:
                          
         - text: "8: Geographically Weighted Predictive Modelling"
           
-          href: "Hands_on_Exercises/Hands_on_Ex08/Hands_on_Ex08.html"                    
+          href: "Hands_on_Exercises/Hands_on_Ex08/Hands_on_Ex08.html"  
+
+        - text: "9: Modelling Geographical Accessibility"
+          
+          href: "Hands_on_Exercises/Hands_on_Ex09/Hands_on_Ex09.html"  
+                    
 
 
     - text: "In_Class_Exercises"
@@ -87,7 +92,15 @@ website:
 
           href: "In_Class_Exercises/In_Class_Ex07/In_Class_Ex07.html"          
                               
-          
+        - text: "8"
+
+          href: "In_Class_Exercises/In_Class_Ex08/In_Class_Ex08.html"          
+                              
+        - text: "9"
+
+          href: "In_Class_Exercises/In_Class_Ex09/In_Class_Ex09.html"          
+                                                            
+                                        
     - text: "Take_Home_Exercises"
 
       menu:
