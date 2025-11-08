@@ -1,4 +1,248 @@
 ---
-title: "In_Class_Ex08"
-format: html
+title: "In class Exercise 8 : Geographically Weighted Predictive Models"
+author: "Deepika Raja"
+date: "October 24, 2025"
+date-modified: "last-modified"
+execute: 
+  eval: false
+  echo: true
+  message: false
+  freeze: true
+  warning: false
+format: 
+  html:
+    code-fold: false
+    code-summary: "code chunk"
+    number-sections: true
+    code-overflow: scroll
+    number-depth: 4
+    code-line-numbers: false
 ---
+
+## 1. Loading the package
+
+We load the following packages into R environment.
+
+```{r}
+pacman::p_load(httr, sf, jsonlite, progress, 
+               tmap, rsample, Metrics, tidyverse,sf, spdep, GWmodel, SpatialML,
+               tmap, rsample, Metrics, tidyverse,
+               knitr, kableExtra, spatialRF,
+               randomForestExplainer)
+```
+
+## 2. Geocoding HDB resale data
+
+### 2.a. Basic version
+
+```{r}
+HDBresale <- read_csv("data/rawdata/HDBresale.csv") %>%
+  filter(flat_type == "4 ROOM") %>%
+  filter(month >= "2025-09" & month < "2025-10")
+```
+
+## 2.b. Preparing Data
+
+### 2.b.1. Reading data file to rds
+
+We first read the input data sets that is saved in `simple feature` data frame.
+
+```{r}
+mdata <- read_rds("data/rawdata/mdata.rds")
+```
+
+### 2.b.2. Data Sampling
+
+Calibrating predictive models are computational intensive, especially random forest method is used. For quick prototyping, a 10% sample will be selected at random from the data by using the code chunk below,
+
+```{r}
+set.seed(1234)
+HDB_sample <- mdata %>%
+  sample_n(1500)
+```
+
+::: callout-warning
+When using GWmodel to calibrate explanatory or predictive models, it is very important to ensure that there are no overlapping point features
+:::
+
+The code chunk below is used to check if there are overlapping point features.
+
+```{r}
+overlapping_points <- HDB_sample %>%
+  mutate(overlap = lengths(st_equals(., .))>1)
+```
+
+### 2.b.3. Spatial Jitter
+
+In the code chunk below, ['st_jitter()'](https://r-spatial.github.io/sf/reference/st_hitter.html) of **sf** package is used to move the point features by 5m to avoid overlapping point features.
+
+```{r}
+HDB_sample <- HDB_sample %>%
+  st_jitter(amount = 1)
+```
+
+### 2.b.4. Data Sampling including spatial sampling
+
+The entire data are split into training and test data sets with 65% and 35% respectively by using *initial_split()* of **rsample** package. rsample is one of the package of tigymodels.
+
+```{r}
+set.seed(1234)
+resale_split <- initial_split(HDB_sample, 
+                              prop = 6.67/10,)
+train_data <- training(resale_split)
+test_data <- testing(resale_split)
+```
+
+### 2.b.5. Computing Adaptive Bandwidth
+
+We use the `bw.gwr()` function from the **GWmodel** package to determine the optimal bandwidth. The “CV” (Cross Validation) method is chosen for calibration because, between the two available options “CV” and “AIC”, the CV method generally produces a smaller bandwidth, allowing the model to capture more local variation in the data.
+
+The code chunk below computes and saves the optimal bandwidth. The search can be time consuming and computationally intensive.
+
+```{r}
+#| eval: false
+bw_adaptive <- bw.gwr(
+  formula = resale_price ~ floor_area_sqm +
+    storey_order + remaining_lease_mths +
+    PROX_CBD + PROX_ELDERLYCARE + PROX_HAWKER +
+    PROX_MRT + PROX_PARK + PROX_MALL + 
+    PROX_SUPERMARKET + WITHIN_350M_KINDERGARTEN +
+    WITHIN_350M_CHILDCARE + WITHIN_350M_BUS +
+    WITHIN_1KM_PRISCH,
+  data=train_data_sp,
+  approach="CV",
+  kernel="gaussian",
+  adaptive=TRUE,
+  longlat=FALSE)
+```
+
+```{r}
+#| eval: false
+write_rds(bw_adaptive, "data/model/bw_adaptive.rds")
+```
+
+We've found optimal bandwidth is 40 neighour points.
+
+### 2.b.6. Constructing the Adaptive Bandwidth GWR Model
+
+Let us call the save bandwidth by using the code chunk below.
+
+```{r}
+bw_adaptive <- read_rds("data/model/bw_adaptive.rds")
+```
+
+Then we build the GWR-based hedonic pricing model using adaptive bandwidth and Gaussian kernel. Same reason as the previous step, we save a copy of the `gwrm` file.
+
+```{r}
+#| eval: false
+gwr_adaptive <- gwr.basic(
+  formula = resale_price ~ floor_area_sqm +
+    storey_order + remaining_lease_mths + 
+    PROX_CBD + PROX_ELDERLYCARE + 
+    PROX_HAWKER + PROX_MRT + PROX_PARK + 
+    PROX_MALL + PROX_SUPERMARKET +
+    WITHIN_350M_KINDERGARTEN +
+    WITHIN_350M_CHILDCARE + 
+    WITHIN_350M_BUS + WITHIN_1KM_PRISCH,
+  data=train_data_sp,
+  bw=bw_adaptive, 
+  kernel = 'gaussian', 
+  adaptive=TRUE,
+  longlat = FALSE)
+write_rds(gwr_adaptive, 
+          "data/model/gwr_adaptive.rds")
+```
+
+### 2.b.7. Retrieve gwr Output Object
+
+We re-load the saved `gwrm` object and retrieve the report of model output.
+
+```{r}
+#| echo: false
+gwr_adaptive <- read_rds("data/model/gwr_adaptive.rds")
+```
+
+```{r}
+gwr_adaptive
+```
+
+::: insightbox
+The report when we use GW model, Global is least squared model, Localised one is Geographically Weighted Regression and then use it for calibration purpose
+
+For explanatory model, take the whole data and compare the Significance stars (least squared model, Adjusted R2) and Diagnostic information.
+
+Adjusted R2 is 0.95822 in GWR model Diagnostic much better than Global regression Significance stars Adjusted R2 0.7387.
+:::
+
+### 2.b.8. Street name which starts with ST. replace with Saint
+
+```{r}
+HDBresale$street_name <- gsub(
+  "ST\\.","SAINT",
+  HDBresale$street_name)
+```
+
+```{r}
+geocode <- function(block, streetname) {
+  base_url <- "https://onemap.gov.sg/api/common/elastic/search"
+  address <- paste(block,streetname,sep = " ")
+  query <- list("searchVal"= address,
+                "returnGeom"= "Y",
+                "getAddrDetails"= "N", #make it Y if you want full address
+                "pageNum"="1")
+  
+  res <- GET(base_url, query = query)
+  restext<- content(res, as="text")
+  
+  output<- fromJSON(restext) %>%
+    as.data.frame %>%
+    select(results.LATITUDE, results.LONGITUDE)
+  
+  return(output)
+}
+```
+
+### 2.b.9. Read all the records , return the geocode , insert the value into HDBresale dataframe
+
+```{r}
+HDBresale$LATITUDE <- 0
+HDBresale$LONGITUDE <- 0 
+
+for(i in 1:nrow(HDBresale)){
+  temp_output <- geocode(HDBresale[i,4], HDBresale[i,5])
+  
+  HDBresale$LATITUDE[i] <- temp_output$results.LATITUDE
+  HDBresale$LONGITUDE[i] <- temp_output$results.LONGITUDE
+}
+
+```
+
+### 2.b.10. Convert HDBresale(13 columns) to spatial data (HDBresale_sf) which is geometry area , make sure it is in SVY 21 projection
+
+```{r}
+# Convert to spatial data frame
+HDBresale_sf <- HDBresale %>% 
+  st_as_sf(coords = c("LONGITUDE", "LATITUDE"),
+                         crs = 4326) %>%  # WGS84 for lat/lon coordinates
+  st_transform(crs = 3414)  # Transform to SVY21 projection (EPSG:3414)
+
+# Check the result
+print(HDBresale_sf)
+```
+
+### 2.b.11. Preschool data
+
+```{r}
+preschool = st_read("data/rawdata/PreSchoolsLocation.kml") %>% 
+  st_transform(crs=3414)
+```
+
+All spatial data are measured in meters. Therefore, when we perform a proximity search within 1 km (equivalent to 1000 meters), the result will return either TRUE or FALSE, depending on whether a point falls within that distance. We can then count the number of TRUE and FALSE values. The same logic is applied for identifying childcare centers, kindergartens, and bus stops located within 350 meters.
+
+```{r}
+within_350m <- st_is_within_distance(
+  HDBresale_sf, preschool, dist = 350)
+
+HDBresale_sf <- HDBresale_sf %>%
+  mutate(prischool_350m = map_int(within_350m,length))
+```
