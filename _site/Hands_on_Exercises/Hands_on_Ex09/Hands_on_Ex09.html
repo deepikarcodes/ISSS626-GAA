@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Deepika Raja">
+<meta name="dcterms.date" content="2025-11-07">
 
-<title>Hands_on_Ex09</title>
+<title>Hands on Exercise 9 : Modelling Geographic of Accessibility</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +21,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -213,23 +249,80 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><span class="header-section-number">1</span> 1. Introduction</a>
+  <ul class="collapse">
+  <li><a href="#a.-learning-outcome" id="toc-a.-learning-outcome" class="nav-link" data-scroll-target="#a.-learning-outcome"><span class="header-section-number">1.1</span> 1.a. Learning Outcome:</a></li>
+  <li><a href="#b.-the-data" id="toc-b.-the-data" class="nav-link" data-scroll-target="#b.-the-data"><span class="header-section-number">1.2</span> 1.b. The Data</a></li>
+  </ul></li>
+  <li><a href="#getting-started" id="toc-getting-started" class="nav-link" data-scroll-target="#getting-started"><span class="header-section-number">2</span> 2. Getting Started</a></li>
+  <li><a href="#geospatial-data-wrangling" id="toc-geospatial-data-wrangling" class="nav-link" data-scroll-target="#geospatial-data-wrangling"><span class="header-section-number">3</span> 3. Geospatial Data Wrangling</a>
+  <ul class="collapse">
+  <li><a href="#a.-importing-geospatial-data" id="toc-a.-importing-geospatial-data" class="nav-link" data-scroll-target="#a.-importing-geospatial-data"><span class="header-section-number">3.1</span> 3.a. Importing Geospatial Data</a></li>
+  <li><a href="#b.-updating-crs-information" id="toc-b.-updating-crs-information" class="nav-link" data-scroll-target="#b.-updating-crs-information"><span class="header-section-number">3.2</span> 3.b. Updating CRS Information</a></li>
+  <li><a href="#c.-cleaning-and-updating-attribute-fields-of-the-geospatial-data" id="toc-c.-cleaning-and-updating-attribute-fields-of-the-geospatial-data" class="nav-link" data-scroll-target="#c.-cleaning-and-updating-attribute-fields-of-the-geospatial-data"><span class="header-section-number">3.3</span> 3.c. Cleaning and Updating Attribute fields of the Geospatial Data</a></li>
+  </ul></li>
+  <li><a href="#apsatial-data-handling-and-wrangling" id="toc-apsatial-data-handling-and-wrangling" class="nav-link" data-scroll-target="#apsatial-data-handling-and-wrangling"><span class="header-section-number">4</span> 4. Apsatial Data Handling and Wrangling</a>
+  <ul class="collapse">
+  <li><a href="#a.-importing-distance-matrix" id="toc-a.-importing-distance-matrix" class="nav-link" data-scroll-target="#a.-importing-distance-matrix"><span class="header-section-number">4.1</span> 4.a. Importing Distance Matrix</a></li>
+  <li><a href="#b.-tidying-distance-matrix" id="toc-b.-tidying-distance-matrix" class="nav-link" data-scroll-target="#b.-tidying-distance-matrix"><span class="header-section-number">4.2</span> 4.b. Tidying Distance Matrix</a></li>
+  </ul></li>
+  <li><a href="#hansen-method" id="toc-hansen-method" class="nav-link" data-scroll-target="#hansen-method"><span class="header-section-number">5</span> 5. Hansen Method</a></li>
+  <li><a href="#modelling-and-visualising-accessibility-using-hansen-method" id="toc-modelling-and-visualising-accessibility-using-hansen-method" class="nav-link" data-scroll-target="#modelling-and-visualising-accessibility-using-hansen-method"><span class="header-section-number">6</span> 6. Modelling and Visualising Accessibility using Hansen Method</a>
+  <ul class="collapse">
+  <li><a href="#a.-visualising-hansens-accessibility" id="toc-a.-visualising-hansens-accessibility" class="nav-link" data-scroll-target="#a.-visualising-hansens-accessibility"><span class="header-section-number">6.1</span> 6.a. Visualising Hansen’s Accessibility</a></li>
+  <li><a href="#b.-statistical-graphic-visualisation" id="toc-b.-statistical-graphic-visualisation" class="nav-link" data-scroll-target="#b.-statistical-graphic-visualisation"><span class="header-section-number">6.2</span> 6.b. Statistical Graphic Visualisation</a></li>
+  </ul></li>
+  <li><a href="#modelling-and-visualising-accessibility-using-kd2sfca-method" id="toc-modelling-and-visualising-accessibility-using-kd2sfca-method" class="nav-link" data-scroll-target="#modelling-and-visualising-accessibility-using-kd2sfca-method"><span class="header-section-number">7</span> 7. Modelling and Visualising Accessibility using KD2SFCA Method</a>
+  <ul class="collapse">
+  <li><a href="#a.-visualising-kd2sfcas-accessibility" id="toc-a.-visualising-kd2sfcas-accessibility" class="nav-link" data-scroll-target="#a.-visualising-kd2sfcas-accessibility"><span class="header-section-number">7.1</span> 7.a. Visualising KD2SFCA’s Accessibility</a></li>
+  <li><a href="#b.-statistical-graphic-visualisation-1" id="toc-b.-statistical-graphic-visualisation-1" class="nav-link" data-scroll-target="#b.-statistical-graphic-visualisation-1"><span class="header-section-number">7.2</span> 7.b. Statistical Graphic Visualisation</a></li>
+  </ul></li>
+  <li><a href="#modelling-and-visualising-accessibility-using-spatial-accessibility-measure-sam-method" id="toc-modelling-and-visualising-accessibility-using-spatial-accessibility-measure-sam-method" class="nav-link" data-scroll-target="#modelling-and-visualising-accessibility-using-spatial-accessibility-measure-sam-method"><span class="header-section-number">8</span> 8. Modelling and Visualising Accessibility using Spatial Accessibility Measure (SAM) Method</a>
+  <ul class="collapse">
+  <li><a href="#a.-computing-sam-accessibility" id="toc-a.-computing-sam-accessibility" class="nav-link" data-scroll-target="#a.-computing-sam-accessibility"><span class="header-section-number">8.1</span> 8.a. Computing SAM Accessibility</a></li>
+  <li><a href="#b.-visualising-sams-accessibility" id="toc-b.-visualising-sams-accessibility" class="nav-link" data-scroll-target="#b.-visualising-sams-accessibility"><span class="header-section-number">8.2</span> 8.b. Visualising SAM’s Accessibility</a></li>
+  <li><a href="#c.-statistical-graphic-visualisation" id="toc-c.-statistical-graphic-visualisation" class="nav-link" data-scroll-target="#c.-statistical-graphic-visualisation"><span class="header-section-number">8.3</span> 8.c. Statistical Graphic Visualisation</a></li>
+  </ul></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Hands_on_Ex09</h1>
+<h1 class="title">Hands on Exercise 9 : Modelling Geographic of Accessibility</h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Deepika Raja </p>
+          </div>
+  </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 7, 2025</p>
+    </div>
+  </div>
   
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">November 8, 2025</p>
+    </div>
+  </div>
     
   </div>
   
@@ -238,8 +331,908 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="introduction" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="introduction"><span class="header-section-number">1</span> 1. Introduction</h2>
+<p>We’re going to model geographic accessibility, which is basically how easy it is for people to get to a specific place or service. We’ll measure this using travel time and distance in R.</p>
+<section id="a.-learning-outcome" class="level3" data-number="1.1">
+<h3 data-number="1.1" class="anchored" data-anchor-id="a.-learning-outcome"><span class="header-section-number">1.1</span> 1.a. Learning Outcome:</h3>
+<ul>
+<li>Import GIS polygon data into R and save them as <em>simple feature data frame</em> by using appropriate functions of <strong>sf</strong> package of R;</li>
+<li>Import aspatial data into R and save them as <em>simple feature data frame</em> by using appropriate functions of <strong>sf</strong> package of R;</li>
+<li>Computer accessibility measure by using <strong>Hansen’s potential model</strong> and <strong>Spatial Accessibility Measure</strong> (SAM); and</li>
+<li>Visualise the accessibility measures by using <strong>tmap</strong> and <strong>ggplot2</strong> packages.</li>
+</ul>
+</section>
+<section id="b.-the-data" class="level3" data-number="1.2">
+<h3 data-number="1.2" class="anchored" data-anchor-id="b.-the-data"><span class="header-section-number">1.2</span> 1.b. The Data</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Dataset Name</th>
+<th>Description</th>
+<th>Format</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>MP14_SUBZONE_NO_SEA_PL</code></td>
+<td>URA Master Plan 2014 subzone boundary GIS data, downloaded from <a href="data.gov.sg">data.gov.sg</a>.</td>
+<td>ERSI Shapefile</td>
+</tr>
+<tr class="even">
+<td><code>hexagons</code></td>
+<td>A 250m radius hexagons GIS data, created by using <a href="https://r-spatial.github.io/sf/reference/st_make_grid.html"><code>st_make_grid()</code></a> of <strong>sf</strong> package.</td>
+<td>ESRI shapefile</td>
+</tr>
+<tr class="odd">
+<td><code>ELDERCARE</code></td>
+<td>Locations of eldercare service, downloaded from <a href="https://data.gov.sg/collections/714/view">data.gov.sg</a>. Two formats were available, ESRI shapefile and Google KML. The Shapefile format was selected as it is a geospatial-native format that preserves coordinate systems and spatial attributes more accurately.</td>
+<td>ESRI shapefile</td>
+</tr>
+<tr class="even">
+<td><code>OD_Matrix</code></td>
+<td><p>A travel distance matrix between the origin hexagon cells and eldercare service locations, measured by <strong>metres</strong>. It includes:</p>
+<ul>
+<li><p><code>origin_id</code>: hexagon identifier</p></li>
+<li><p><code>destination_id</code>: eldercare facility identifier</p></li>
+<li><p><code>entry_cost</code>: perpendicular distance from the origin to nearest road entry</p></li>
+<li><p><code>network_cost</code>: actual travel distance on the road</p></li>
+<li><p><code>exit_cost</code>: perpendicular distance from destination to nearest road connection</p></li>
+<li><p><code>total_cost</code>: total travel cost, computed as <code>entry_cost+network_cost+exit_cost</code></p></li>
+</ul></td>
+<td>CSV</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="getting-started" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="getting-started"><span class="header-section-number">2</span> 2. Getting Started</h2>
+<p>There are <strong>six</strong> packages to be used in this exercise.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Package</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://r-spatial.github.io/sf/">sf</a></td>
+<td>Handles importing, managing, and processing vector-based geospatial data</td>
+</tr>
+<tr class="even">
+<td><a href="https://www.tidyverse.org/">tidyverse</a></td>
+<td>A collection of R packages for data wrangling and visualisation, including <strong>readr</strong>, <strong>dplyr</strong>, and <strong>ggplot2</strong>.</td>
+</tr>
+<tr class="odd">
+<td><a href="https://r-tmap.github.io/tmap/">tmap</a></td>
+<td>Creates cartographic quality static and interactive thematic (choropleth) maps.</td>
+</tr>
+<tr class="even">
+<td><a href="https://cran.r-project.org/web/packages/SpatialML/index.html">Spatial</a><a href="https://cran.r-project.org/web/packages/SpatialAcc/refman/SpatialAcc.html">ACC</a></td>
+<td>Provides a set of spatial accessibility measures from demand to supply</td>
+</tr>
+<tr class="odd">
+<td><a href="https://indrajeetpatil.github.io/ggstatsplot/">ggstatsplot</a></td>
+<td>An extension of <a href="https://github.com/tidyverse/ggplot2"><code>{ggplot2}</code></a> package to create enriched plots for statistical tests</td>
+</tr>
+<tr class="even">
+<td><a href="https://www.rdocumentation.org/packages/reshape2/versions/1.4.4">reshape2</a></td>
+<td>Provides tools to restructure and combine data.</td>
+</tr>
+</tbody>
+</table>
+<p>Let’s install and launch these packages into R environment.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tmap, SpatialAcc, sf, ggstatsplot, reshape2, tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="geospatial-data-wrangling" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="geospatial-data-wrangling"><span class="header-section-number">3</span> 3. Geospatial Data Wrangling</h2>
+<section id="a.-importing-geospatial-data" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="a.-importing-geospatial-data"><span class="header-section-number">3.1</span> 3.a. Importing Geospatial Data</h3>
+<p>The code chunk below uses <code>st_read()</code> of <strong>sf</strong> package to import the three ERSI Shapefile files into R as <code>sf</code> objects.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>mpsz <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>, <span class="at">layer =</span> <span class="st">"MP14_SUBZONE_NO_SEA_PL"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `MP14_SUBZONE_NO_SEA_PL' from data source 
+  `C:\deepikarcodes\ISSS626-GAA\Hands_on_Exercises\Hands_on_Ex09\data\geospatial' 
+  using driver `ESRI Shapefile'
+Simple feature collection with 323 features and 15 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 2667.538 ymin: 15748.72 xmax: 56396.44 ymax: 50256.33
+Projected CRS: SVY21</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>hexagons <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>, <span class="at">layer =</span> <span class="st">"hexagons"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `hexagons' from data source 
+  `C:\deepikarcodes\ISSS626-GAA\Hands_on_Exercises\Hands_on_Ex09\data\geospatial' 
+  using driver `ESRI Shapefile'
+Simple feature collection with 3125 features and 6 fields
+Geometry type: POLYGON
+Dimension:     XY
+Bounding box:  xmin: 2667.538 ymin: 21506.33 xmax: 50010.26 ymax: 50256.33
+Projected CRS: SVY21 / Singapore TM</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>eldercare <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>, <span class="at">layer =</span> <span class="st">"ELDERCARE"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `ELDERCARE' from data source 
+  `C:\deepikarcodes\ISSS626-GAA\Hands_on_Exercises\Hands_on_Ex09\data\geospatial' 
+  using driver `ESRI Shapefile'
+Simple feature collection with 120 features and 19 fields
+Geometry type: POINT
+Dimension:     XY
+Bounding box:  xmin: 14481.92 ymin: 28218.43 xmax: 41665.14 ymax: 46804.9
+Projected CRS: SVY21 / Singapore TM</code></pre>
+</div>
+</div>
+<div class="insightbox">
+<p>The import reports reveal the geometry type of each file, and improtant information like dimension and projected CRS. We notice <code>mpsz</code> file does not have proper “SVY21/ Singapore TM”.</p>
+</div>
+</section>
+<section id="b.-updating-crs-information" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="b.-updating-crs-information"><span class="header-section-number">3.2</span> 3.b. Updating CRS Information</h3>
+<p>The code chunk below assigns the correct ESPG(3414) to our newly imported <code>sf</code> objects.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>mpsz <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(mpsz, <span class="dv">3414</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>eldercare <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(eldercare, <span class="dv">3414</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>hexagons <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(hexagons, <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Then we can verify the update via calling <code>st_crs()</code> of <strong>sf</strong> package. The EPSG has been updated accordingly.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">st_crs</span>(mpsz)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Coordinate Reference System:
+  User input: EPSG:3414 
+  wkt:
+PROJCRS["SVY21 / Singapore TM",
+    BASEGEOGCRS["SVY21",
+        DATUM["SVY21",
+            ELLIPSOID["WGS 84",6378137,298.257223563,
+                LENGTHUNIT["metre",1]]],
+        PRIMEM["Greenwich",0,
+            ANGLEUNIT["degree",0.0174532925199433]],
+        ID["EPSG",4757]],
+    CONVERSION["Singapore Transverse Mercator",
+        METHOD["Transverse Mercator",
+            ID["EPSG",9807]],
+        PARAMETER["Latitude of natural origin",1.36666666666667,
+            ANGLEUNIT["degree",0.0174532925199433],
+            ID["EPSG",8801]],
+        PARAMETER["Longitude of natural origin",103.833333333333,
+            ANGLEUNIT["degree",0.0174532925199433],
+            ID["EPSG",8802]],
+        PARAMETER["Scale factor at natural origin",1,
+            SCALEUNIT["unity",1],
+            ID["EPSG",8805]],
+        PARAMETER["False easting",28001.642,
+            LENGTHUNIT["metre",1],
+            ID["EPSG",8806]],
+        PARAMETER["False northing",38744.572,
+            LENGTHUNIT["metre",1],
+            ID["EPSG",8807]]],
+    CS[Cartesian,2],
+        AXIS["northing (N)",north,
+            ORDER[1],
+            LENGTHUNIT["metre",1]],
+        AXIS["easting (E)",east,
+            ORDER[2],
+            LENGTHUNIT["metre",1]],
+    USAGE[
+        SCOPE["Cadastre, engineering survey, topographic mapping."],
+        AREA["Singapore - onshore and offshore."],
+        BBOX[1.13,103.59,1.47,104.07]],
+    ID["EPSG",3414]]</code></pre>
+</div>
+</div>
+<p>We shall quickly plot map for eldercare centers in Singapore.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz) <span class="sc">+</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>, <span class="at">border.col =</span> <span class="st">"gray"</span>) <span class="sc">+</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>(<span class="at">col =</span> <span class="st">"black"</span>, <span class="at">size =</span> <span class="fl">0.1</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_title</span>(<span class="st">"Eldercare Facilities Distribution"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Hands_on_Ex09_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="c.-cleaning-and-updating-attribute-fields-of-the-geospatial-data" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="c.-cleaning-and-updating-attribute-fields-of-the-geospatial-data"><span class="header-section-number">3.3</span> 3.c. Cleaning and Updating Attribute fields of the Geospatial Data</h3>
+<p>After inspecting the origin and destination datasets, we reorganise the attributes and retain only the required ID fields. We then create a <strong>demand</strong> field for the hexagon layer, representing the estimated number of people who require eldercare services within each hexagonal area. Likewise, we add a <strong>capacity</strong> field for the eldercare layer, which indicates the service capacity or supply at each facility (e.g., number of beds or service slots available).</p>
+<p>For the purpose of this exercise, both demand and capacity are assigned a constant value of <strong>100</strong> to simplify the demonstration. In practice, actual population data and real facility capacity figures should be used.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>eldercare <span class="ot">&lt;-</span> eldercare <span class="sc">%&gt;%</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(fid, ADDRESSPOS) <span class="sc">%&gt;%</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">capacity =</span> <span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>hexagons <span class="ot">&lt;-</span> hexagons <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(fid) <span class="sc">%&gt;%</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">demand =</span> <span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="apsatial-data-handling-and-wrangling" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="apsatial-data-handling-and-wrangling"><span class="header-section-number">4</span> 4. Apsatial Data Handling and Wrangling</h2>
+<section id="a.-importing-distance-matrix" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="a.-importing-distance-matrix"><span class="header-section-number">4.1</span> 4.a. Importing Distance Matrix</h3>
+<p>The code chunk below uses <code>read_cvs()</code> of <strong>readr</strong> package to import the matrix dataset into R as a tibble data.frame .</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>ODMatrix <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/aspatial/OD_Matrix.csv"</span>, <span class="at">skip =</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="b.-tidying-distance-matrix" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="b.-tidying-distance-matrix"><span class="header-section-number">4.2</span> 4.b. Tidying Distance Matrix</h3>
+<p>The imported ODMatrix is structured that the cost component appears as a separate column.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">head</span>(ODMatrix, <span class="dv">10</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 21%">
+<col style="width: 15%">
+<col style="width: 18%">
+<col style="width: 14%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">origin_id</th>
+<th style="text-align: right;">destination_id</th>
+<th style="text-align: right;">entry_cost</th>
+<th style="text-align: right;">network_cost</th>
+<th style="text-align: right;">exit_cost</th>
+<th style="text-align: right;">total_cost</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">667.9336</td>
+<td style="text-align: right;">19846.87</td>
+<td style="text-align: right;">47.64874</td>
+<td style="text-align: right;">20562.45</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">667.9336</td>
+<td style="text-align: right;">45026.76</td>
+<td style="text-align: right;">31.87162</td>
+<td style="text-align: right;">45726.57</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">667.9336</td>
+<td style="text-align: right;">17644.17</td>
+<td style="text-align: right;">173.47882</td>
+<td style="text-align: right;">18485.58</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">667.9336</td>
+<td style="text-align: right;">36009.56</td>
+<td style="text-align: right;">92.19676</td>
+<td style="text-align: right;">36769.69</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">667.9336</td>
+<td style="text-align: right;">31068.09</td>
+<td style="text-align: right;">64.62840</td>
+<td style="text-align: right;">31800.65</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">667.9336</td>
+<td style="text-align: right;">31194.54</td>
+<td style="text-align: right;">117.15249</td>
+<td style="text-align: right;">31979.63</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">667.9336</td>
+<td style="text-align: right;">32474.75</td>
+<td style="text-align: right;">55.10771</td>
+<td style="text-align: right;">33197.79</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">667.9336</td>
+<td style="text-align: right;">22266.53</td>
+<td style="text-align: right;">28.38673</td>
+<td style="text-align: right;">22962.85</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">667.9336</td>
+<td style="text-align: right;">45219.94</td>
+<td style="text-align: right;">55.13242</td>
+<td style="text-align: right;">45943.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">667.9336</td>
+<td style="text-align: right;">34897.98</td>
+<td style="text-align: right;">27.47681</td>
+<td style="text-align: right;">35593.39</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>A standardised matrix format stores origins as rows and destinations as columns, allowing the distance between any origin–destination pair to be retrieved by referencing the corresponding row and column indices.</p>
+<p>This transformation can be performed using the <code>spread()</code> or <code>pivot_wider()</code> function from the <strong>tidyr</strong> package to convert the long (thin) table format into a wide (fat) matrix format.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>distmat <span class="ot">&lt;-</span> ODMatrix <span class="sc">%&gt;%</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(origin_id, destination_id, total_cost) <span class="sc">%&gt;%</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> destination_id, <span class="at">values_from =</span> total_cost) <span class="sc">%&gt;%</span> <span class="co">#spread(destination, total_cost)</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="st">'origin_id'</span>)  <span class="co">#remove the column origin_id</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Next, we rescale the distance values from metres to kilometres. <code>as.matrix()</code> is used here to convert the <code>tbl_df</code> data frame into a numeric <code>matrix</code> format.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>distmat_km <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(distmat<span class="sc">/</span><span class="dv">1000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="hansen-method" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="hansen-method"><span class="header-section-number">5</span> 5. Hansen Method</h2>
+<p>ac() computes spatial accessibility of demand locations (e.g., residential areas) to service locations (e.g., eldercare centres). It implements several well-known measures:</p>
+<ul>
+<li><p>“Hansen”:Hansen gravity-type accessibility</p></li>
+<li><p>“KD2SFCA”: Kernel/Downgraded 2SFCA (distance-decay)</p></li>
+<li><p>“SAM”: Spatial Accessibility Measure</p></li>
+</ul>
+<p><strong>Usage</strong>:</p>
+<ul>
+<li>ac(p, n, D, d0, power=2, family=“SAM”)</li>
+</ul>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><p>p: numeric vector of demand at each origin (e.g., number of senior residents per hexagon).</p></li>
+<li><p>n: numeric vector of supply at each destination (e.g., number of beds per eldercare centre).</p></li>
+<li><p>D: distance or time matrix separating origins (rows) from destinations (columns). Prefer road-network distance or travel time.</p></li>
+<li><p>d0: catchment threshold (distance/time) defining which OD pairs “count”.</p></li>
+<li><p>power: distance-decay exponent (commonly 2 in gravity models).</p></li>
+<li><p>family: which accessibility method to compute: “SAM”, “2SFCA”, “KD2SFCA”, or “Hansen” (default “SAM”).</p></li>
+</ul>
+<p>All four methods are <strong>gravity-based</strong> accessibility measures where accessibility <strong>improves</strong> with greater service capacity and proximity, and <strong>decreases</strong> with distance and population demand due to competition for limited resources.</p>
+<p><strong>Return value</strong></p>
+<p>A numeric vector of accessibility scores for each origin (length = length(p)).</p>
+</section>
+<section id="modelling-and-visualising-accessibility-using-hansen-method" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="modelling-and-visualising-accessibility-using-hansen-method"><span class="header-section-number">6</span> 6. Modelling and Visualising Accessibility using Hansen Method</h2>
+<p>The code chunk below uses <code>ac()</code> to compute the Hansen’s accessibility and saves the output in a data frame by using data.frame().</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>acc_Hansen <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">ac</span>(hexagons<span class="sc">$</span>demand,</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>                            eldercare<span class="sc">$</span>capacity,</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>                            distmat_km,</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>                            <span class="at">power =</span> <span class="dv">2</span>,</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>                            <span class="at">family =</span> <span class="st">"Hansen"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let’s have a quick review on the Hansen accessibility measure, after rename the column name to <code>accHansen</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(acc_Hansen) <span class="ot">&lt;-</span> <span class="st">"accHansen"</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>acc_Hansen <span class="ot">&lt;-</span> acc_Hansen <span class="sc">%&gt;%</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">head</span>(acc_Hansen, <span class="dv">10</span>), </span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">align =</span> <span class="st">'c'</span>,  <span class="co"># column alignment: c=center, l=left, r=right</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">format =</span> <span class="st">"html"</span>)  <span class="co"># or "latex", "markdown", "pandoc"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: center;" data-quarto-table-cell-role="th">accHansen</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">0</td>
+</tr>
+</tbody>
+</table>
 
 
+</div>
+</div>
+<p>Lastly, we join the <code>acc_Hansen</code> <code>tibble</code> with the <code>hexagon</code> <code>sf</code> data frame using <code>bind_cols()</code>. Because the <code>sf</code> object is on the <strong>left</strong> side of the operation, the resulting dataset automatically inherits the <strong>sf</strong> class, preserving its spatial attributes.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>hexagon_Hansen <span class="ot">&lt;-</span> <span class="fu">bind_cols</span>(hexagons, acc_Hansen)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">head</span>(hexagon_Hansen,<span class="dv">10</span>),</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">align =</span> <span class="st">"c"</span>,</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">format =</span> <span class="st">"markdown"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: center;">fid</th>
+<th style="text-align: center;">demand</th>
+<th style="text-align: center;">accHansen</th>
+<th style="text-align: center;">geometry</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">100</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">POLYGON ((2667.538 27506.33…</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">100</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">POLYGON ((2667.538 25006.33…</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">100</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">POLYGON ((2667.538 24506.33…</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">100</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">POLYGON ((2667.538 24006.33…</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">100</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">POLYGON ((2667.538 23506.33…</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">100</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">POLYGON ((2667.538 23006.33…</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">7</td>
+<td style="text-align: center;">100</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">POLYGON ((3100.551 28756.33…</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">100</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">POLYGON ((3100.551 28256.33…</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">9</td>
+<td style="text-align: center;">100</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">POLYGON ((3100.551 27756.33…</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">10</td>
+<td style="text-align: center;">100</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">POLYGON ((3100.551 27256.33…</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<section id="a.-visualising-hansens-accessibility" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="a.-visualising-hansens-accessibility"><span class="header-section-number">6.1</span> 6.a. Visualising Hansen’s Accessibility</h3>
+<section id="a.1.-extracting-map-extend" class="level4" data-number="6.1.1">
+<h4 data-number="6.1.1" class="anchored" data-anchor-id="a.1.-extracting-map-extend"><span class="header-section-number">6.1.1</span> 6.a.1. Extracting Map Extend</h4>
+<p>First, we extract the extent of the hexagon sf layer using <code>st_bbox()</code> of sf package.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>mapex <span class="ot">&lt;-</span> <span class="fu">st_bbox</span>(hexagons)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Next, we create a choropleth map with the <strong>tmap</strong> package to visualise eldercare service accessibility across Singapore.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(hexagon_Hansen,</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>         <span class="at">bbox =</span> mapex) <span class="sc">+</span> </span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="at">fill =</span> <span class="st">"accHansen"</span>, </span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">fill.scale =</span> <span class="fu">tm_scale_intervals</span>(</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">style =</span> <span class="st">"quantile"</span>,</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>                <span class="at">n =</span> <span class="dv">10</span>,</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>                <span class="at">values =</span> <span class="st">"brewer.blues"</span>)) <span class="sc">+</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(eldercare) <span class="sc">+</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>(<span class="at">size =</span> <span class="fl">0.3</span>,</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>          <span class="at">fill =</span> <span class="st">"red"</span>,</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>          <span class="at">col =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_title</span>(<span class="st">"Accessibility to eldercare: Hansen method"</span>) <span class="sc">+</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">frame =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_compass</span>(<span class="at">type=</span><span class="st">"8star"</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_scalebar</span>() <span class="sc">+</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_grid</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Hands_on_Ex09_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The map indicates that accessibility is highest in areas with clusters of eldercare centres, particularly in the Central Region and established heartland estates. In contrast, large peripheral areas exhibit zero accessibility.</p>
+</section>
+</section>
+<section id="b.-statistical-graphic-visualisation" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="b.-statistical-graphic-visualisation"><span class="header-section-number">6.2</span> 6.b. Statistical Graphic Visualisation</h3>
+<p>Next, we create a choropleth map with the <strong>tmap</strong> package to visualise eldercare service accessibility across Singapore.</p>
+<p>In this section, we compare the distribution of Hansen accessiblity scores across URA Planning regions. To do so, we first append the main dataset <code>mpsz</code> to the <code>hexagon_Hansen</code> <code>sf</code> data frame using <code>st_join()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>hexagon_Hansen <span class="ot">&lt;-</span> <span class="fu">st_join</span>(hexagon_Hansen, mpsz, <span class="at">join=</span> st_intersects)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Then we use <code>ggplot()</code>, <code>geom_boxplot()</code> and <code>stat_summary()</code> , to create boxplots for each region and display the mean accessibility value.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>hexagon_Hansen, </span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">log</span>(accHansen), <span class="at">x=</span> REGION_N)) <span class="sc">+</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun=</span><span class="st">"mean"</span>, <span class="at">colour =</span><span class="st">"red"</span>, <span class="at">size=</span><span class="fl">0.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Hands_on_Ex09_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The boxplots of Hansen’s accessibility show that the Central Region has the highest average level of accessibility, followed by the North-East Region. In contrast, the West Region records the lowest average accessibility. The East Region displays the largest variability, as indicated by its long lower whiskers, suggesting uneven access to eldercare services across the region, possibly influenced by extensive non-residential areas, the airport.</p>
+<p>The average Hansen accessibility scores rank the regions from highest to lowest as follows: Central, North-East, North, East, and West.</p>
+</section>
+</section>
+<section id="modelling-and-visualising-accessibility-using-kd2sfca-method" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="modelling-and-visualising-accessibility-using-kd2sfca-method"><span class="header-section-number">7</span> 7. Modelling and Visualising Accessibility using KD2SFCA Method</h2>
+<p>KD2SFCA stands for Kernel Density 2-Step Floating Catchment Area. It uses a distance decay function where accessibility decreases as distance increases and accounts for competing demand, which is commonly used in healthcare facility access.</p>
+<p>In this section, we repeat the similar steps to compute and visualise the accessibility using KD2SFCA method.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>acc_KD2SFCA <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">ac</span>(hexagons<span class="sc">$</span>demand,</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>                            eldercare<span class="sc">$</span>capacity,</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>                            distmat_km, </span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>                            <span class="at">d0 =</span> <span class="dv">5</span>,</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>                            <span class="at">power =</span> <span class="dv">2</span>, </span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>                            <span class="at">family =</span> <span class="st">"KD2SFCA"</span>))</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(acc_KD2SFCA) <span class="ot">&lt;-</span> <span class="st">"accKD2SFCA"</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>acc_KD2SFCA <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(acc_KD2SFCA)</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>hexagon_KD2SFCA <span class="ot">&lt;-</span> <span class="fu">bind_cols</span>(hexagons, acc_KD2SFCA)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The d0 = 5 parameter in the ac() function represents the bandwidth or search radius in kilometers.</p>
+<p>5 means the maximum distance within which eldercare facilities can serve the people in the hexagon area.</p>
+<p>If beyond 5km, accessibility becomes zero.</p>
+<p>The code chunk below displays the data frame <code>hexagon_KD2SFCA</code> that shows the eldercare service accessibility per hexagon.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">head</span>(hexagon_KD2SFCA, <span class="dv">10</span>),</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>            <span class="at">format =</span> <span class="st">"pandoc"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">fid</th>
+<th style="text-align: right;">demand</th>
+<th style="text-align: right;">accKD2SFCA</th>
+<th style="text-align: left;">geometry</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">POLYGON ((2667.538 27506.33…</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">POLYGON ((2667.538 25006.33…</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">POLYGON ((2667.538 24506.33…</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">POLYGON ((2667.538 24006.33…</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">POLYGON ((2667.538 23506.33…</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">POLYGON ((2667.538 23006.33…</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">POLYGON ((3100.551 28756.33…</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">POLYGON ((3100.551 28256.33…</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">POLYGON ((3100.551 27756.33…</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">POLYGON ((3100.551 27256.33…</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<section id="a.-visualising-kd2sfcas-accessibility" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="a.-visualising-kd2sfcas-accessibility"><span class="header-section-number">7.1</span> 7.a. Visualising KD2SFCA’s Accessibility</h3>
+<p>We reuse the hexagon extent and create a high cartographic quality map for accessibility to eldercare centres in Singapore.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(hexagon_KD2SFCA,</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>         <span class="at">bbox =</span> mapex) <span class="sc">+</span> </span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="at">fill =</span> <span class="st">"accKD2SFCA"</span>, </span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">fill.scale =</span> <span class="fu">tm_scale_intervals</span>(</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">style =</span> <span class="st">"quantile"</span>,</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>                <span class="at">n =</span> <span class="dv">10</span>,</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>                <span class="at">values =</span> <span class="st">"brewer.blues"</span>)) <span class="sc">+</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(eldercare) <span class="sc">+</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>(<span class="at">size =</span> <span class="fl">0.3</span>,</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>          <span class="at">fill =</span> <span class="st">"red"</span>,</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>          <span class="at">col =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_title</span>(<span class="st">"Accessibility to eldercare: KD2SFCA method"</span>) <span class="sc">+</span></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">frame =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_compass</span>(<span class="at">type=</span><span class="st">"8star"</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_scalebar</span>() <span class="sc">+</span></span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_grid</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Hands_on_Ex09_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The KD2SFCA-based accessibility map shows a spatial pattern similar to the Hansen model, although the magnitude of accessibility scores differs.</p>
+</section>
+<section id="b.-statistical-graphic-visualisation-1" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="b.-statistical-graphic-visualisation-1"><span class="header-section-number">7.2</span> 7.b. Statistical Graphic Visualisation</h3>
+<p>In this section, we compare the distribution of KD2SFCA accessiblity scores across URA Planning regions. To do so, we first append the main dataset <code>mpsz</code> to the <code>hexagon_KD2SFCA</code> <code>sf</code> data frame using <code>st_join()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>hexagon_KD2SFCA <span class="ot">&lt;-</span> <span class="fu">st_join</span>(hexagon_KD2SFCA, mpsz, <span class="at">join =</span> st_intersects)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Then we use <code>ggplot()</code>, <code>geom_boxplot()</code> and <code>stat_summary()</code> , to create boxplots for each region and display the mean accessibility value.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>hexagon_KD2SFCA, </span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">log</span>(accKD2SFCA), <span class="at">x=</span> REGION_N)) <span class="sc">+</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun=</span><span class="st">"mean"</span>, <span class="at">colour =</span><span class="st">"red"</span>, <span class="at">size=</span><span class="fl">0.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Hands_on_Ex09_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The boxplot for the KD2SFCA method shows that the average accessibility scores, from highest to lowest, are ranked as follows: Central, North-East, West, East, and North.</p>
+</section>
+</section>
+<section id="modelling-and-visualising-accessibility-using-spatial-accessibility-measure-sam-method" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="modelling-and-visualising-accessibility-using-spatial-accessibility-measure-sam-method"><span class="header-section-number">8</span> 8. Modelling and Visualising Accessibility using Spatial Accessibility Measure (SAM) Method</h2>
+<section id="a.-computing-sam-accessibility" class="level3" data-number="8.1">
+<h3 data-number="8.1" class="anchored" data-anchor-id="a.-computing-sam-accessibility"><span class="header-section-number">8.1</span> 8.a. Computing SAM Accessibility</h3>
+<p>We repeat the similar code to calculate SAM Accessibility.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>acc_SAM <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">ac</span>(hexagons<span class="sc">$</span>demand,</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>                         eldercare<span class="sc">$</span>capacity,</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>                         distmat_km, </span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">d0 =</span> <span class="dv">5</span>,</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>                         <span class="at">power =</span> <span class="dv">2</span>, </span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>                         <span class="at">family =</span> <span class="st">"SAM"</span>))</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(acc_SAM) <span class="ot">&lt;-</span> <span class="st">"accSAM"</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>acc_SAM <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(acc_SAM)</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>hexagon_SAM <span class="ot">&lt;-</span> <span class="fu">bind_cols</span>(hexagons, acc_SAM)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">head</span>(hexagon_SAM, <span class="dv">10</span>),</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>            <span class="at">format =</span> <span class="st">"markdown"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">fid</th>
+<th style="text-align: right;">demand</th>
+<th style="text-align: right;">accSAM</th>
+<th style="text-align: left;">geometry</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">0.1194179</td>
+<td style="text-align: left;">POLYGON ((2667.538 27506.33…</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">0.1010155</td>
+<td style="text-align: left;">POLYGON ((2667.538 25006.33…</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">0.0977588</td>
+<td style="text-align: left;">POLYGON ((2667.538 24506.33…</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">0.0949096</td>
+<td style="text-align: left;">POLYGON ((2667.538 24006.33…</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">0.0939192</td>
+<td style="text-align: left;">POLYGON ((2667.538 23506.33…</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">0.0918759</td>
+<td style="text-align: left;">POLYGON ((2667.538 23006.33…</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">0.1300976</td>
+<td style="text-align: left;">POLYGON ((3100.551 28756.33…</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">0.1273823</td>
+<td style="text-align: left;">POLYGON ((3100.551 28256.33…</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">0.1247928</td>
+<td style="text-align: left;">POLYGON ((3100.551 27756.33…</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">0.1213906</td>
+<td style="text-align: left;">POLYGON ((3100.551 27256.33…</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="b.-visualising-sams-accessibility" class="level3" data-number="8.2">
+<h3 data-number="8.2" class="anchored" data-anchor-id="b.-visualising-sams-accessibility"><span class="header-section-number">8.2</span> 8.b. Visualising SAM’s Accessibility</h3>
+<p>Similarly we plot the choropleth map for SAM’s accessibility.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(hexagon_SAM,</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>         <span class="at">bbox =</span> mapex) <span class="sc">+</span> </span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="at">fill =</span> <span class="st">"accSAM"</span>, </span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">fill.scale =</span> <span class="fu">tm_scale_intervals</span>(</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">style =</span> <span class="st">"quantile"</span>,</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>                <span class="at">n =</span> <span class="dv">10</span>,</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>                <span class="at">values =</span> <span class="st">"brewer.blues"</span>)) <span class="sc">+</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(eldercare) <span class="sc">+</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_dots</span>(<span class="at">size =</span> <span class="fl">0.3</span>,</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>          <span class="at">fill =</span> <span class="st">"red"</span>,</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>          <span class="at">col =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_title</span>(<span class="st">"Accessibility to eldercare: SAM method"</span>) <span class="sc">+</span></span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">frame =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_compass</span>(<span class="at">type=</span><span class="st">"8star"</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_scalebar</span>() <span class="sc">+</span></span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_grid</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Hands_on_Ex09_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>()The SAM map displays a spatial pattern very similar to the Hansen results. However, the SAM values are much more interpretable, instead of many zero values and long decimal numbers, the scores range from approximately 0.1 to 740, making the scale more user-friendly.</p>
+</section>
+<section id="c.-statistical-graphic-visualisation" class="level3" data-number="8.3">
+<h3 data-number="8.3" class="anchored" data-anchor-id="c.-statistical-graphic-visualisation"><span class="header-section-number">8.3</span> 8.c. Statistical Graphic Visualisation</h3>
+<p>In this section, we compare the distribution of SAM accessiblity scores across URA Planning regions. To do so, we first append the main dataset <code>mpsz</code> to the <code>hexagon_SAM</code> <code>sf</code> data frame using <code>st_join()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>hexagon_SAM <span class="ot">&lt;-</span> <span class="fu">st_join</span>(hexagon_SAM, mpsz, <span class="at">join =</span> st_intersects)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Then we use <code>ggplot()</code>, <code>geom_boxplot()</code> and <code>stat_summary()</code> , to create boxplots for each region and display the mean accessibility value.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>hexagon_SAM, </span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">log</span>(accSAM), <span class="at">x=</span> REGION_N)) <span class="sc">+</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun=</span><span class="st">"mean"</span>, <span class="at">colour =</span><span class="st">"red"</span>, <span class="at">size=</span><span class="fl">0.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Hands_on_Ex09_files/figure-html/unnamed-chunk-33-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The Central Region contains two notable outliers, Crawford and Lavender from Kallang subzone, with SAM accessibility scores of approximately 740, far exceeding values observed elsewhere.</p>
+
+
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
