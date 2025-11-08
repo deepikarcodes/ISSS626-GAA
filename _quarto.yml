@@ -88,15 +88,15 @@ website:
 
           href: "In_Class_Exercises/In_Class_Ex06/In_Class_Ex06.html"          
                     
-        - text: "7"
+        - text: "7 : Geographically weighted regression (GWR)"
 
           href: "In_Class_Exercises/In_Class_Ex07/In_Class_Ex07.html"          
                               
-        - text: "8"
+        - text: "8 : Geographically Weighted Predictive Models"
 
           href: "In_Class_Exercises/In_Class_Ex08/In_Class_Ex08.html"          
                               
-        - text: "9"
+        - text: "9 : Modelling Geographic of Accessibility"
 
           href: "In_Class_Exercises/In_Class_Ex09/In_Class_Ex09.html"          
                                                             
