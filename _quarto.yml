@@ -98,7 +98,11 @@ website:
                               
         - text: "9 : Modelling Geographic of Accessibility"
 
-          href: "In_Class_Exercises/In_Class_Ex09/In_Class_Ex09.html"          
+          href: "In_Class_Exercises/In_Class_Ex09/In_Class_Ex09.html" 
+          
+        - text: "10 : Market Area Analysis for Retail and Service Locations using Huff model"
+
+          href: "In_Class_Exercises/In_Class_Ex10/In_Class_Ex10.html"          
                                                             
                                         
     - text: "Take_Home_Exercises"
