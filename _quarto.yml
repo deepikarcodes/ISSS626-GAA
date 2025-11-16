@@ -117,7 +117,10 @@ website:
 
           href: "Take_Home_Exercises/Take_Home_Ex02/Take_Home_Ex02.html"          
                     
-          
+        - text: "3: Modelling HDB Resale Prices with Geographically Weighted Methods"
+
+          href: "Take_Home_Exercises/Take_Home_Ex03/Take_Home_Ex03.html"          
+                              
           
     
     right:
